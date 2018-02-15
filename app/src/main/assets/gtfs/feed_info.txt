@@ -1,0 +1,2 @@
+feed_publisher_name,feed_publisher_url,feed_lang,feed_start_date,feed_end_date,feed_version
+Citymapper,https://citymapper.com/smartbus/opendata,en,20180105,20180405,2018-01-04T12:37:00Z

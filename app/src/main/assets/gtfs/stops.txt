@@ -1,0 +1,48 @@
+stop_id,stop_name,stop_desc,stop_lat,stop_lon,stop_url,wheelchair_boarding
+490000004N,Aldgate East Station,,51.515629,-0.072274,https://citymapper.com/london/bus/stops/490000004N,1
+490000108A,Highbury & Islington Station,,51.546866,-0.104632,https://citymapper.com/london/bus/stops/490000108A,1
+490000108B,Highbury & Islington Station,,51.546797,-0.104202,https://citymapper.com/london/bus/stops/490000108B,1
+490001081R,Dalston Kingsland Station,,51.548726,-0.075274,https://citymapper.com/london/bus/stops/490001081R,1
+490004583F,Balls Pond Road / Burder Road,,51.546133,-0.07785,https://citymapper.com/london/bus/stops/490004583F,1
+490005390E,Clephane Road,,51.547038,-0.090288,https://citymapper.com/london/bus/stops/490005390E,1
+490005390W,Clephane Road,,51.546934,-0.090538,https://citymapper.com/london/bus/stops/490005390W,1
+490005945M,Dalston Junction Station,,51.546671,-0.075549,https://citymapper.com/london/bus/stops/490005945M,1
+490006170N1,Haggerston Station,,51.538222,-0.076857,https://citymapper.com/london/bus/stops/490006170N1,1
+490006170S1,Haggerston Station,,51.538146,-0.076615,https://citymapper.com/london/bus/stops/490006170S1,1
+490006463G,Elder Street,,51.522269,-0.076881,https://citymapper.com/london/bus/stops/490006463G,1
+490006463H,Elder Street,,51.521934,-0.076203,https://citymapper.com/london/bus/stops/490006463H,1
+490006645W,Essex Road / Newington Green Road,,51.546504,-0.086214,https://citymapper.com/london/bus/stops/490006645W,1
+490006726N,Hoxton Station  / Geffrye Museum,,51.529717,-0.077561,https://citymapper.com/london/bus/stops/490006726N,1
+490006726S,Falkirk Street,,51.529634,-0.077392,https://citymapper.com/london/bus/stops/490006726S,1
+490006766S,Brushfield Street,,51.518639,-0.074324,https://citymapper.com/london/bus/stops/490006766S,1
+490006883N,Shoreditch High Street Station,,51.520911,-0.075194,https://citymapper.com/london/bus/stops/490006883N,1
+490006929C,Dalston Junction Station,,51.54454,-0.076129,https://citymapper.com/london/bus/stops/490006929C,1
+490006929D,Kingsland Road / Forest Road,,51.544303,-0.075937,https://citymapper.com/london/bus/stops/490006929D,1
+490007154S,Hoxton Station  / Geffrye Museum,,51.531362,-0.076944,https://citymapper.com/london/bus/stops/490007154S,1
+490007155KB,Pearson Street,,51.532869,-0.077256,https://citymapper.com/london/bus/stops/490007155KB,1
+490007625T,Shoreditch Church,,51.527943,-0.07791,https://citymapper.com/london/bus/stops/490007625T,1
+490007625V,Waterson Street,,51.52826,-0.078084,https://citymapper.com/london/bus/stops/490007625V,1
+490008143C,St Paul's Road / Highbury Corner,,51.546293,-0.100862,https://citymapper.com/london/bus/stops/490008143C,1
+490008143D,Highbury Corner,,51.546114,-0.101504,https://citymapper.com/london/bus/stops/490008143D,1
+490008146E,Highbury Grove,,51.547017,-0.097846,https://citymapper.com/london/bus/stops/490008146E,1
+490008146W,St Paul's Road / Highbury Grove,,51.546484,-0.099311,https://citymapper.com/london/bus/stops/490008146W,1
+490008788U,Crossway / Kingsland High Street,,51.550418,-0.075896,https://citymapper.com/london/bus/stops/490008788U,1
+490008893S,Laburnum Street,,51.535523,-0.076826,https://citymapper.com/london/bus/stops/490008893S,1
+490009259E,Lolesworth Close,,51.517715,-0.07393,https://citymapper.com/london/bus/stops/490009259E,1
+490009259S,Lolesworth Close,,51.517366,-0.073469,https://citymapper.com/london/bus/stops/490009259S,1
+490009859N,Middleton Road,"Middleton Road, De Beauvoir Town",51.541444,-0.076519,https://citymapper.com/london/bus/stops/490009859N,1
+490009859S,Middleton Road,"Middleton Road, De Beauvoir Town",51.541243,-0.076311,https://citymapper.com/london/bus/stops/490009859S,1
+490009871E,Mildmay Park / Southgate Road,,51.546654,-0.084391,https://citymapper.com/london/bus/stops/490009871E,1
+490010584N,Brushfield Street,,51.518868,-0.074574,https://citymapper.com/london/bus/stops/490010584N,1
+490010584S,Folgate Street,,51.520596,-0.074645,https://citymapper.com/london/bus/stops/490010584S,1
+490010985N,Laburnum Street,,51.535616,-0.076996,https://citymapper.com/london/bus/stops/490010985N,1
+490012113N,Shoreditch High Street Station,,51.524991,-0.077271,https://citymapper.com/london/bus/stops/490012113N,1
+490012302W,Southgate Road,,51.546506,-0.083041,https://citymapper.com/london/bus/stops/490012302W,1
+490012445N,St Leonard's Hospital,,51.534036,-0.077149,https://citymapper.com/london/bus/stops/490012445N,1
+490012445S,St Leonard's Hospital,,51.533781,-0.076957,https://citymapper.com/london/bus/stops/490012445S,1
+490012875E,Newington Green Road / Essex Road,,51.546799,-0.087759,https://citymapper.com/london/bus/stops/490012875E,1
+490012875W,St Paul's Road / Ramsey Walk,,51.546642,-0.087506,https://citymapper.com/london/bus/stops/490012875W,1
+490015851T,Rio Cinema,,51.55009,-0.075116,https://citymapper.com/london/bus/stops/490015851T,1
+490016266N,Shoreditch High St / Bethnal Green Road,,51.52439,-0.077325,https://citymapper.com/london/bus/stops/490016266N,1
+490016267N,Shoreditch Church,,51.525984,-0.07805,https://citymapper.com/london/bus/stops/490016267N,1
+490019414S,Aldgate East Station,,51.515771,-0.072139,https://citymapper.com/london/bus/stops/490019414S,1

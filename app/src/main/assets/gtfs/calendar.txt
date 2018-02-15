@@ -1,0 +1,2 @@
+service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,start_date,end_date
+calendar-4tEE5d--E-YJ6kcn,0,0,0,0,1,1,0,20180105,20180331

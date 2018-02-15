@@ -1,0 +1,2 @@
+agency_id,route_id,route_short_name,route_long_name,route_desc,route_type,route_url,route_color,route_text_color
+CM,CM2,CM2,Night Rider,Aldgate East - Highbury & Islington,3,https://citymapper.com/london/cmbus/bus-cm2,37AB2F,FFFFFF
