@@ -25,7 +25,9 @@ import android.widget.Toast;
 import com.example.frank.busmap.Pojo.getAllBusStops.OrderedLineRoutes;
 import com.example.frank.busmap.Pojo.getAllBusStops.StopPointSequences;
 import com.example.frank.busmap.Pojo.getAllBusStops.BusStopResponse;
+import com.example.frank.busmap.Pojo.getBusArrival.BusArrivalResponse;
 import com.example.frank.busmap.Rest.TflApi;
+import com.google.android.gms.location.places.GeoDataClient;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -52,8 +54,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -78,9 +80,9 @@ public class MapsActivity extends FragmentActivity implements
     String lineID = "";
     String direction = "inbound";
     LatLng middleLat ;
-    boolean rotateDirection = true;
+    boolean rotateDirectionLine = true;
     Animation animationRotate;
-
+    protected GeoDataClient mGeoDataClient;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,23 +110,27 @@ public class MapsActivity extends FragmentActivity implements
 
                     inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
                             InputMethodManager.HIDE_NOT_ALWAYS);
-
-                    //addMarker();
                     connectAndGetApiData();
+                    SlidingUpPanelLayout sup = (SlidingUpPanelLayout)findViewById(R.id.sliding_layout) ;
+                    sup.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
                     return true;
                 }
                 return false;
             }
         });
 
+
+        //WILL NEED TO MOVE TO DIFFERENT CLASS(Will BE FOR GOOGLE PLACE SERVICE)
+
+
+
+
         ImageView imgFavorite = (ImageView) findViewById(R.id.busDirection);
         imgFavorite.setOnClickListener(this);
-        FloatingActionButton fabBack = (FloatingActionButton) findViewById(R.id.fab_back);
-        fabBack.setOnClickListener(this);
+        //FloatingActionButton fabBack = (FloatingActionButton) findViewById(R.id.fab_back);
+        //fabBack.setOnClickListener(this);
         FloatingActionButton fabDirection = (FloatingActionButton) findViewById(R.id.fab_direction);
         fabDirection.setOnClickListener(this);
-
-
 
     }
 
@@ -169,34 +175,48 @@ public class MapsActivity extends FragmentActivity implements
     @Override
     public void onClick(View v) {
         SlidingUpPanelLayout sup = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+        //FloatingActionButton mFab = (FloatingActionButton) findViewById(R.id.fab_back);
+        FloatingActionButton faq = (FloatingActionButton) findViewById(R.id.fab_direction);
+
         switch (v.getId()){
             case R.id.busDirection:
-                Log.d(TAG, direction +" GOO " + rotateDirection);
+                ImageView image = (ImageView) findViewById(R.id.busDirection);
+                Log.d(TAG, direction +" GOO " + rotateDirectionLine);
                 //True will represent inbound and false will be outbound
-                if(rotateDirection)
+
+                if(rotateDirectionLine)
                 {
-                    rotateDirection = false;
+                    rotateDirectionLine = false;
                     direction = "outbound";
                 }
                 else
                 {
-                    rotateDirection = true;
+                    rotateDirectionLine = true;
                     direction = "inbound";
                 }
-                new ImageView(v.getContext()).startAnimation(animationRotate);
+                image.startAnimation(animationRotate);
+
                 break;
 
-            case R.id.fab_back:
-                sup.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-                addVisibilityChanged.onHidden(new FloatingActionButton(v.getContext()));
-                break;
+//            case R.id.fab_back:
+//
+//                mFab.hide();
+//                sup.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+//                addVisibilityChanged.onHidden(new FloatingActionButton(v.getContext()));
+//                break;
 
             case R.id.fab_direction:
+                //mFab.show();
                 sup.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
-                addVisibilityChanged.onShown(new FloatingActionButton(v.getContext()));
+                //addVisibilityChanged.onShown(new FloatingActionButton(v.getContext()));
                 break;
         }
     }
+
+
+
+
+
     //NOT NEEDED JUST LOGGING PURPOSE
     final FloatingActionButton.OnVisibilityChangedListener addVisibilityChanged = new FloatingActionButton.OnVisibilityChangedListener() {
         public void onShown(final FloatingActionButton fab) {
@@ -211,38 +231,74 @@ public class MapsActivity extends FragmentActivity implements
         }
     };
 
-    public void connectAndGetApiData(){
-        Gson gson = new GsonBuilder()
+    public void connectAndGetApiData() {
+
+
+        if (retrofit == null) {
+            Gson gson = new GsonBuilder()
                 .setLenient()
                 .create();
 
-        if (retrofit == null) {
             retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
                     .addConverterFactory(GsonConverterFactory.create(gson))
                     .build();
         }
-        TflApi apple = retrofit.create(TflApi.class);
+        TflApi tflCall = retrofit.create(TflApi.class);
         String appId = getString(R.string.tfl_app_id);
         String apiKey = getString(R.string.tfl_key);
-        Call<BusStopResponse> call = apple.getAllBusStops(lineID,direction ,appId ,apiKey);
-        call.enqueue(new Callback<BusStopResponse>() {
+
+        Call<List<BusArrivalResponse>> busArrivalCall = tflCall.getBusArrival(lineID, appId, apiKey);
+
+//        busArrivalCall.enqueue(new Callback<List<BusArrivalResponse>>() {
+//
+//            @Override
+//            public void onResponse(Call<List<BusArrivalResponse>> call, Response<List<BusArrivalResponse>> response) {
+//                Log.d(TAG, " Getting response from Bus Arrival");
+//                //Creating object
+//                if (response.isSuccessful()) {
+//                    Log.d(TAG, " Response success");
+//                    List<BusArrivalResponse> StudentData = response.body();
+//
+//                    for (int i = 0; i < StudentData.size(); i++) {
+//                        Log.d(TAG, "Going to " + StudentData.get(i).getStationName() + ", Time to station: " +(StudentData.get(i).getTimeToStation()/60) + ", towards " + StudentData.get(i).getDestinationName() );
+//                    }
+//                    Collections.sort(StudentData);
+//                    for (int i = 0; i < StudentData.size(); i++) {
+//                        Log.d(TAG, "Vehicle id "+StudentData.get(i).getVehicleId() +", Going to " + StudentData.get(i).getStationName() + ", Time to station: " +(StudentData.get(i).getTimeToStation()/60) );
+//                    }
+//
+//
+//                    //getBusArrival(response);
+//                } else {
+//                    Log.d(TAG, " Awaiting response");
+//                }
+//                //Log.d(TAG, "URL "+call.request().url());
+//
+//            }
+//
+//            @Override
+//            public void onFailure(Call<List<BusArrivalResponse>> call, Throwable t) {
+//                Log.d(TAG, " TADSASD " + call.request().url());
+//                Log.d(TAG, t.toString() + " SOMETHING IS WRONG");
+//            }
+//        });
+
+
+        Call <BusStopResponse> busStopCall = tflCall.getAllBusStops(lineID,direction ,appId ,apiKey);
+        busStopCall.enqueue(new Callback<BusStopResponse>() {
             @Override
             public void onResponse(Call<BusStopResponse> call, Response<BusStopResponse> response) {
-                Log.d(TAG,  " Getting response");
-
+                Log.d(TAG,  " Getting response from bus stops");
+                Log.d(TAG, "URL "+call.request().url());
                 //Creating object
                 if(response.isSuccessful()) {
                     Log.d(TAG,  " Response success");
                      mMap.clear();
-
                     getLineData(response);
                 }else{
                     Log.d(TAG,  " Awaiting response");
                 }
-
-
-
                 //String encode = PolyUtil.encode(latLng);
 //                List<LatLng> qt = new ArrayList<>();
 //                //qt =PolyUtil.decode("ChIJ685WIFYViEgRHlHvBbiD5nE");
@@ -265,6 +321,14 @@ public class MapsActivity extends FragmentActivity implements
         });
     }
 
+    public void getStationsBetween(){
+
+    }
+
+    public void getBusArrival(Response<BusArrivalResponse> response){
+
+    }
+    //USE GSON BETTER WAY https://stackoverflow.com/questions/5490789/json-parsing-using-gson-for-java
     public void getLineData(Response<BusStopResponse> response){
         OrderedLineRoutes[] direction = response.body().getOrderedLineRoutes();
         OrderedLineRoutes orderedLineRoutes = new OrderedLineRoutes();
@@ -422,7 +486,7 @@ public class MapsActivity extends FragmentActivity implements
             }
             // Drawing polyline in the Google Map for the i-th route
             if(lineOptions != null) {
-                Toast toast = Toast.makeText(getApplicationContext(), "Drawing Lines", Toast.LENGTH_SHORT);
+                Toast toast = Toast.makeText(getApplicationContext(), "Drawing Lines", Toast.LENGTH_LONG);
                 toast.show();
                 mMap.addPolyline(lineOptions);
             }

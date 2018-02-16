@@ -1,53 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-  <android.support.design.widget.FloatingActionButton
-      android:id="@+id/fab_back"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_alignLeft="@+id/fab_direction"
-      android:layout_alignStart="@+id/fab_direction"
-      android:layout_alignTop="@+id/busNumber"
-      android:layout_gravity="top"
-      android:src="@drawable/back_arrow_24dp"
-      app:elevation="6dp"
-      app:pressedTranslationZ="12dp"
-      />
 
-  <AutoCompleteTextView
-      android:id="@+id/busNumber"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_alignParentTop="true"
-      android:layout_centerHorizontal="true"
-      android:layout_marginTop="18dp"
-      android:hint="Enter Bus Number..."
-      android:background="#fff"
-      android:padding="5dp"
-      android:completionThreshold="1"
-      android:imeOptions="actionSearch"
-      android:inputType="text"/>
+    <!--<android.support.design.widget.FloatingActionButton-->
+        <!--android:id="@+id/fab_back"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_alignLeft="@+id/fab_direction"-->
+        <!--android:layout_alignStart="@+id/fab_direction"-->
+
+        <!--android:layout_gravity="top"-->
+        <!--android:src="@drawable/back_arrow_24dp"-->
+        <!--android:visibility="invisible"-->
+        <!--app:elevation="6dp"-->
+        <!--app:pressedTranslationZ="12dp"-->
+        <!--tools:layout_editor_absoluteX="16dp"-->
+        <!--tools:layout_editor_absoluteY="16dp" />-->
+
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_direction"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_gravity="bottom|end"
-        android:layout_marginBottom="35dp"
-        android:layout_marginLeft="12dp"
-        android:layout_marginStart="10dp"
+        android:layout_marginBottom="32dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
         android:rotation="180"
         android:src="@drawable/direction_24dp"
         app:elevation="6dp"
-        app:pressedTranslationZ="12dp" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
+    <!--&lt;!&ndash;<fragment&ndash;&gt;-->
+        <!--&lt;!&ndash;android:id="@+id/place_autocomplete_fragment"&ndash;&gt;-->
+        <!--&lt;!&ndash;android:layout_width="395dp"&ndash;&gt;-->
+        <!--&lt;!&ndash;android:layout_height="67dp"&ndash;&gt;-->
+<!--/>-->
 
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>
