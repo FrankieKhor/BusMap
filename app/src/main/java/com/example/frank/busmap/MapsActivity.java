@@ -1,49 +1,101 @@
 package com.example.frank.busmap;
 
+import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.Icon;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
+import android.provider.Settings;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.frank.busmap.Pojo.getAllBusStops.OrderedLineRoutes;
+import com.ahmadrosid.lib.drawroutemap.DrawMarker;
+import com.ahmadrosid.lib.drawroutemap.DrawRouteMaps;
+import com.androidmapsextensions.utils.LatLngUtils;
+import com.arsy.maps_library.MapRipple;
 import com.example.frank.busmap.Pojo.getAllBusStops.StopPointSequences;
 import com.example.frank.busmap.Pojo.getAllBusStops.BusStopResponse;
 import com.example.frank.busmap.Pojo.getBusArrival.BusArrivalResponse;
+import com.example.frank.busmap.Pojo.getJourneyFromTo.Instruction;
+import com.example.frank.busmap.Pojo.getJourneyFromTo.JourneyFromToResponse;
+import com.example.frank.busmap.Pojo.getJourneyFromTo.Journeys;
+import com.example.frank.busmap.Pojo.getJourneyFromTo.Legs;
+import com.example.frank.busmap.Pojo.getJourneyFromTo.Steps;
+import com.example.frank.busmap.Pojo.getStopPointArrival.StopPointArrival;
 import com.example.frank.busmap.Rest.TflApi;
 import com.google.android.gms.location.places.GeoDataClient;
+import com.google.android.gms.location.places.PlaceDetectionClient;
+import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.OnStreetViewPanoramaReadyCallback;
+import com.google.android.gms.maps.StreetViewPanoramaOptions;
+import com.google.android.gms.maps.StreetViewPanoramaView;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CustomCap;
+import com.google.android.gms.maps.model.Dash;
+import com.google.android.gms.maps.model.Dot;
+import com.google.android.gms.maps.model.Gap;
 import com.google.android.gms.maps.model.JointType;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PatternItem;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.maps.android.ui.IconGenerator;
+import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.DexterError;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.PermissionRequestErrorListener;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
+import com.seatgeek.placesautocomplete.OnPlaceSelectedListener;
+import com.seatgeek.placesautocomplete.PlacesAutocompleteTextView;
+import com.seatgeek.placesautocomplete.model.Place;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -57,6 +109,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -67,32 +121,69 @@ public class MapsActivity extends FragmentActivity implements
         OnMapReadyCallback,
         View.OnClickListener{
 
-    private static final String TAG = "MapsActivity";
-    //List<LatLng> locations = new ArrayList<>();
-    //Adds naptanId and LatLng
-    //LinkedHashMap<String,LatLng> locations = new LinkedHashMap<>();
-    //Adds Naptan Id and l,ocation name
-    //HashMap<String, String> naptan_name = new HashMap<>();
-    private GoogleMap mMap;
-    boolean decision = false;
-    private static Retrofit retrofit = null;
-    private static final String BASE_URL = "https://api.tfl.gov.uk/";
-    String lineID = "";
-    String direction = "inbound";
-    LatLng middleLat ;
+    public static final String TAG = "MapsActivity";
+    static String[] napId;
+    static String[] stopName;
+    static List<LatLng> latLng;
+    int API_CALL_CHOICE;
+    private RecyclerView recyclerView;
+    private ArrayList<List<BusArrivalResponse>> data;
+    private DataAdapter adapter;
+    private LinearLayoutManager layoutManager;
+    BitmapDescriptor mBusIcon;
+    static List<BusArrivalResponse> StudentData;
+    static List<StopPointArrival> STOPDATA;
+    static String[] stopArrivalResponse;
+    static Context mapContext;
+    boolean isMarkerRotating;
+    Spinner spinner;
+    public static GoogleMap mMap;
+    public static Retrofit retrofit = null;
+    static String lineID = "";
+    static String direction = "Inbound";
+    static LatLng middleLat;
     boolean rotateDirectionLine = true;
     Animation animationRotate;
-    protected GeoDataClient mGeoDataClient;
+    GeoDataClient mGeoDataClient;
+    static boolean cBusArrivalisFinished = false;
+    static boolean cBusStopisFinished = false;
+    PlaceDetectionClient mPlaceDetectionClient;
+    private ViewGroup infoWindow;
+    private TextView infoTitle;
+    private TextView infoSnippet;
+    private TextView infoSnippet2;
+    private Button infoButton1;
+    private OnInfoWindowElemTouchListener infoButtonListener;
+    LatLng clickAddress;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sliding_panel);
+        MapsActivity.mapContext = getApplicationContext();
+//        View b = this.findViewById(android.R.id.content).getRootView();
+//        View c = this.findViewById(android.R.id.content);
+//        Log.d(TAG, "VIOEW" + view);
+//        Log.d(TAG, "VIOEW" + b);
+//        Log.d(TAG, "VIOEW" + c);
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         final SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        mGeoDataClient = Places.getGeoDataClient(this, null);
+        mPlaceDetectionClient = Places.getPlaceDetectionClient(this, null);
+        //mFusedLocationProviderClient  = LocationServices.getFusedLocationProviderClient(this);
+        //getGoogleApiClient();
         animationRotate = AnimationUtils.loadAnimation(this, R.anim.rotate);
+          //in onMapReadyCallBack
+
+
+
+
+
+
+
+
 
         //Allows user to search for bus route
         final AutoCompleteTextView autoCompleteTextView = (AutoCompleteTextView) findViewById(R.id.busNumber);
@@ -110,87 +201,208 @@ public class MapsActivity extends FragmentActivity implements
 
                     inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
                             InputMethodManager.HIDE_NOT_ALWAYS);
+                    API_CALL_CHOICE = 1;
+                    createCustomInfoWindow();
                     connectAndGetApiData();
-                    SlidingUpPanelLayout sup = (SlidingUpPanelLayout)findViewById(R.id.sliding_layout) ;
+
+                    SlidingUpPanelLayout sup = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
                     sup.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+
                     return true;
                 }
                 return false;
             }
         });
+        String[] some_array = getResources().getStringArray(R.array.travel_choice);
 
+         spinner = (Spinner) findViewById(R.id.travelChoiceSpinner);
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, some_array) {
 
-        //WILL NEED TO MOVE TO DIFFERENT CLASS(Will BE FOR GOOGLE PLACE SERVICE)
+            @Override
+            public boolean isEnabled(int position) {
+                if (position == 0) {
+                    // Disable the first item from Spinner
+                    // First item will be use for hint
+                    return false;
+                } else {
+                    return true;
+                }
+            }
 
+            @Override
+            public View getDropDownView(int position, View convertView,
+                                        ViewGroup parent) {
+                View view = super.getDropDownView(position, convertView, parent);
+                TextView tv = (TextView) view;
+                if (position == 0) {
+                    // Set the hint text color gray
+                    tv.setTextColor(Color.GRAY);
+                } else {
+                    tv.setTextColor(Color.BLACK);
+                }
+                return view;
+            }
+        };
 
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(dataAdapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedItemText = (String) parent.getItemAtPosition(position);
+                // If user change the default selection
+                // First item is disable and it is used for hint
+                if (position > 0) {
+                    // Notify the selected item text
+                    Toast.makeText
+                            (getApplicationContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
+                            .show();
+                }
+            }
 
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         ImageView imgFavorite = (ImageView) findViewById(R.id.busDirection);
         imgFavorite.setOnClickListener(this);
-        //FloatingActionButton fabBack = (FloatingActionButton) findViewById(R.id.fab_back);
-        //fabBack.setOnClickListener(this);
+        FloatingActionButton fabBack = (FloatingActionButton) findViewById(R.id.fab_current_location);
+        fabBack.setOnClickListener(this);
         FloatingActionButton fabDirection = (FloatingActionButton) findViewById(R.id.fab_direction);
         fabDirection.setOnClickListener(this);
+        FloatingActionButton planner = (FloatingActionButton) findViewById(R.id.fab_path);
+        planner.setOnClickListener(this);
+        Button button = (Button) findViewById(R.id.btnSubmit) ;
+        button.setOnClickListener(this);
 
+        PlacesAutocompleteTextView from = (PlacesAutocompleteTextView) findViewById(R.id.places_autocomplete_from);
+        PlacesAutocompleteTextView to = (PlacesAutocompleteTextView) findViewById(R.id.places_autocomplete_from);
+        from.setOnPlaceSelectedListener(
+                new OnPlaceSelectedListener() {
+                    @Override
+                    public void onPlaceSelected(final Place place) {
+                        Log.d(TAG, "HI" + place.place_id);
+                        // do something awesome with the selected place
+                    }
+                });
     }
+
+
+//    public void getGoogleApiClient(){
+//        mGoogleApiClient = new GoogleApiClient
+//                .Builder(this)
+//                .addApi(Places.GEO_DATA_API)
+//                .addApi(Places.PLACE_DETECTION_API)
+//                .enableAutoManage(this, this)
+//                .build();
+//    }
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        //Setting a location and moving camera
-        LatLng london = new LatLng(51.509865, -0.118092);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(london, 13));
-    }
-    //Doesnt add last stop (TACKY WAY OF DOING IT )
-    public void addMarker(StopPointSequences worm){
-        MarkerOptions options = new MarkerOptions();
-        CameraUpdate location = CameraUpdateFactory.newLatLngZoom(
-                worm.getIdCoord(worm.getLength()/2), 12);
-        mMap.animateCamera(location);
-        for(int i =1 ;i<worm.getLength();i++) {
-            //PROBLEM HERE NEED TO GET KEY
-            options.position(worm.getIdCoord((i-1)));
-            mMap.addMarker(options
-            .title(worm.getIdName((i-1))));
 
-            if(i == worm.getLength()-1) {
-                Log.d(TAG,"ROB");
-                options.position(worm.getIdCoord((worm.getLength()-1)));
-                mMap.addMarker(options
-                        .title(worm.getIdName((worm.getLength()-1))));
+
+    }
+    public void createCustomInfoWindow(){
+        final LatLng address ;
+        final String op = "";
+        final MapWrapperLayout mapWrapperLayout = (MapWrapperLayout)findViewById(R.id.map_relative_layout);
+        mapWrapperLayout.init(mMap, getPixelsFromDp(this, 39 + 20));
+        this.infoWindow = (ViewGroup)getLayoutInflater().inflate(R.layout.custom_infowindow, null);
+
+        this.infoTitle = (TextView)infoWindow.findViewById(R.id.nameTxt);
+        this.infoSnippet = (TextView)infoWindow.findViewById(R.id.addressTxt);
+        this.infoButton1 = (Button)infoWindow.findViewById(R.id.btnOne);
+        this.infoButtonListener = new OnInfoWindowElemTouchListener(infoButton1, getResources().getDrawable(R.drawable.btn_bg), getResources().getDrawable(R.drawable.btn_bg)){
+            @Override
+            protected void onClickConfirmed(View v, Marker marker) {
+                Intent intent = new Intent(v.getContext(), StreetViewPanorama.class);
+                Bundle args = new Bundle();
+                args.putParcelable("Position", clickAddress);
+                intent.putExtra("bundle", args );
+                startActivity(intent);
+                // Here we can perform some action triggered after clicking the button
+                Toast.makeText(MapsActivity.this, "click on button 1", Toast.LENGTH_SHORT).show();
+            }
+        };
+        this.infoButton1.setOnTouchListener(infoButtonListener);
+
+
+        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+            @Override
+            public View getInfoWindow(Marker marker) {
+                clickAddress = marker.getPosition();
+                Log.d(TAG, "MARKER " + marker.getPosition() + " " + marker.getTitle());
+                return null;
             }
 
-            LatLng origin = (LatLng) worm.getIdCoord((i-1));
-            LatLng dest = (LatLng) worm.getIdCoord((i));
+            @Override
+            public View getInfoContents(Marker marker) {
+                // Setting up the infoWindow with current's marker info
+                infoSnippet.setText(marker.getSnippet());
+                infoTitle.setText(marker.getTitle());
+                infoButtonListener.setMarker(marker);
 
-            // Getting URL to the Google Directions API, Drawing lines between points
+                // We must call this to set the current marker and infoWindow references
+                // to the MapWrapperLayout
+                mapWrapperLayout.setMarkerWithInfoWindow(marker, infoWindow);
+                return infoWindow;
+            }
+        });
+        // Let's add a couple of markers
+//        mMap.addMarker(new MarkerOptions()
+//                .position(latlng1)
+//                .title("Source")
+//                .snippet("Comapny Name")
+//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+//
+//        mMap.addMarker(new MarkerOptions()
+//                .position(latlng2)
+//                .title("Destination")
+//                .snippet("AmisunXXXXXX")
+//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
 
-           String url = getDirectionsUrl(origin, dest);
-            DownloadTask downloadTask = new DownloadTask();
-            // Start downloading json data from Google Directions API
-            downloadTask.execute(url);
-
-        }
+        //Setting a location and moving camera
+        //getDeviceLocation();
     }
+    public static int getPixelsFromDp(Context context, float dp) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int)(dp * scale + 0.5f);
+    }
+
+
+    public static Context getMapContext(){
+        return MapsActivity.mapContext ;
+    }
+
+
+
     @Override
     public void onClick(View v) {
+
+
         SlidingUpPanelLayout sup = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+        ConstraintLayout layout = (ConstraintLayout) findViewById(R.id.choice_A);
+        ConstraintLayout layout2 = (ConstraintLayout) findViewById(R.id.choice_B);
+
         //FloatingActionButton mFab = (FloatingActionButton) findViewById(R.id.fab_back);
         FloatingActionButton faq = (FloatingActionButton) findViewById(R.id.fab_direction);
 
-        switch (v.getId()){
+
+        switch (v.getId()) {
             case R.id.busDirection:
                 ImageView image = (ImageView) findViewById(R.id.busDirection);
-                Log.d(TAG, direction +" GOO " + rotateDirectionLine);
+                //  Log.d(TAG, direction +" GOO " + rotateDirectionLine);
                 //True will represent inbound and false will be outbound
 
-                if(rotateDirectionLine)
-                {
+                if (rotateDirectionLine) {
                     rotateDirectionLine = false;
                     direction = "outbound";
-                }
-                else
-                {
+                } else {
                     rotateDirectionLine = true;
                     direction = "inbound";
                 }
@@ -198,23 +410,144 @@ public class MapsActivity extends FragmentActivity implements
 
                 break;
 
-//            case R.id.fab_back:
-//
-//                mFab.hide();
-//                sup.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-//                addVisibilityChanged.onHidden(new FloatingActionButton(v.getContext()));
-//                break;
+            case R.id.fab_current_location:
+                Log.d(TAG, "CURRENT ");
+                GoogleMapPermission a = new GoogleMapPermission();
+                a.updateLocationUI(mMap);
+                //getAllPermission();
+                break;
 
             case R.id.fab_direction:
                 //mFab.show();
+                layout2.setVisibility(View.GONE);
+                layout.setVisibility(View.VISIBLE);
                 sup.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+                sup.setPanelHeight(0);
                 //addVisibilityChanged.onShown(new FloatingActionButton(v.getContext()));
+                break;
+            case R.id.fab_path:
+                API_CALL_CHOICE = 2;
+                connectAndGetApiData();
+
+                layout.setVisibility(View.GONE);
+                layout2.setVisibility(View.VISIBLE);
+                sup.setPanelHeight(100);
+            case R.id.btnSubmit:
+                Log.d(TAG, "ITEM " + spinner.getSelectedItem().toString());
+                String[] some_array = getResources().getStringArray(R.array.travel_choice);
+
+                if(spinner.getSelectedItem().toString().equals(some_array[1])){
+                    SelectingRoute sr = new SelectingRoute(TflCalls.journey);
+                    Legs [] ab = sr.getQuickestRoute().getLegs();
+                    TflCalls po = new TflCalls();
+                    mMap.clear();
+                    po.addingPaths(ab, 1);
+                    Log.d(TAG, "SMAKKKKEESS " + sr.getQuickestRoute().getDuration());
+                }
+                else if(spinner.getSelectedItem().toString().equals(some_array[2])) {
+                    Log.d(TAG, "2");
+                }
+                else if(spinner.getSelectedItem().toString().equals(some_array[3])) {
+                    Log.d(TAG, "3");
+
+                }
+                else if(spinner.getSelectedItem().toString().equals(some_array[4])) {
+                    Log.d(TAG, "4");
+
+                }
+
+//                SelectingRoute p = new SelectingRoute();
+
                 break;
         }
     }
 
 
 
+
+    public void addIcon(IconGenerator iconGenerator, CharSequence text, LatLng position){
+
+        MarkerOptions markerOptions = new MarkerOptions().
+                icon(BitmapDescriptorFactory.fromBitmap(iconGenerator.makeIcon(text))).
+                position(position);
+        mMap.addMarker(markerOptions);
+
+    }
+
+
+    public void getAllPermission() {
+        Dexter.withActivity(this)
+                .withPermissions(Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.INTERNET,
+                        Manifest.permission.ACCESS_NETWORK_STATE
+                )
+                .withListener(new MultiplePermissionsListener() {
+                    @Override
+                    public void onPermissionsChecked(MultiplePermissionsReport report) {
+                        Log.d(TAG, "PROB " + report.getGrantedPermissionResponses().toString());
+
+                        if (report.areAllPermissionsGranted()) {
+                            Toast.makeText(getApplicationContext(), "All permissions are granted!", Toast.LENGTH_SHORT).show();
+                        }
+
+                        // check for permanent denial of any permission
+                        if (report.isAnyPermissionPermanentlyDenied()) {
+                            Log.d(TAG, "DENIESD " + report.getDeniedPermissionResponses().toString());
+                            // show alert dialog navigating to Settings
+                            showSettingsDialog();
+                        }
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+                        token.continuePermissionRequest();
+                    }
+                }).withErrorListener(new PermissionRequestErrorListener() {
+            @Override
+            public void onError(DexterError error) {
+                Toast.makeText(getApplicationContext(), "Error occurred! ", Toast.LENGTH_SHORT).show();
+            }
+        })
+                .onSameThread()
+                .check();
+    }
+
+    private void showSettingsDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Need Permissions");
+        builder.setMessage("This app needs permission to use this feature. You can grant them in app settings.");
+        builder.setPositiveButton("GOTO SETTINGS", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+                openSettings();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.show();
+
+    }
+
+    private void openSettings() {
+        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        Uri uri = Uri.fromParts("package", getPackageName(), null);
+        intent.setData(uri);
+        startActivityForResult(intent, 101);
+    }
+
+//    private void createPermissionListener(){
+//        MultiplePermissionsListener feedbackViewMultiplePermissionListener =
+//                new AddMultiplePermissionListener(this);
+//        allPermissionsListener =
+//                new CompositeMultiplePermissionsListener(feedbackViewMultiplePermissionListener,
+//                        SnackbarOnAnyDeniedMultiplePermissionsListener.Builder.with(contentView))
+//    }
 
 
     //NOT NEEDED JUST LOGGING PURPOSE
@@ -231,179 +564,73 @@ public class MapsActivity extends FragmentActivity implements
         }
     };
 
+
+    //Will use RxJava for multiple Api request
+
+
+
+
+
+
     public void connectAndGetApiData() {
-
-
-        if (retrofit == null) {
-            Gson gson = new GsonBuilder()
-                .setLenient()
-                .create();
-
-            retrofit = new Retrofit.Builder()
-                    .baseUrl(BASE_URL)
-                    .addConverterFactory(GsonConverterFactory.create(gson))
-                    .build();
-        }
-        TflApi tflCall = retrofit.create(TflApi.class);
+        TflCalls a = new TflCalls();
+        a.createRetrofit();
+        a.createRetrofitClass();
         String appId = getString(R.string.tfl_app_id);
         String apiKey = getString(R.string.tfl_key);
-
-        Call<List<BusArrivalResponse>> busArrivalCall = tflCall.getBusArrival(lineID, appId, apiKey);
-
-//        busArrivalCall.enqueue(new Callback<List<BusArrivalResponse>>() {
+        a.choice(API_CALL_CHOICE, appId, apiKey);
 //
-//            @Override
-//            public void onResponse(Call<List<BusArrivalResponse>> call, Response<List<BusArrivalResponse>> response) {
-//                Log.d(TAG, " Getting response from Bus Arrival");
-//                //Creating object
-//                if (response.isSuccessful()) {
-//                    Log.d(TAG, " Response success");
-//                    List<BusArrivalResponse> StudentData = response.body();
-//
-//                    for (int i = 0; i < StudentData.size(); i++) {
-//                        Log.d(TAG, "Going to " + StudentData.get(i).getStationName() + ", Time to station: " +(StudentData.get(i).getTimeToStation()/60) + ", towards " + StudentData.get(i).getDestinationName() );
-//                    }
-//                    Collections.sort(StudentData);
-//                    for (int i = 0; i < StudentData.size(); i++) {
-//                        Log.d(TAG, "Vehicle id "+StudentData.get(i).getVehicleId() +", Going to " + StudentData.get(i).getStationName() + ", Time to station: " +(StudentData.get(i).getTimeToStation()/60) );
-//                    }
-//
-//
-//                    //getBusArrival(response);
-//                } else {
-//                    Log.d(TAG, " Awaiting response");
-//                }
-//                //Log.d(TAG, "URL "+call.request().url());
-//
-//            }
-//
-//            @Override
-//            public void onFailure(Call<List<BusArrivalResponse>> call, Throwable t) {
-//                Log.d(TAG, " TADSASD " + call.request().url());
-//                Log.d(TAG, t.toString() + " SOMETHING IS WRONG");
-//            }
-//        });
+//        tflCall.getAllBusStops(lineID, direction, appId, apiKey)
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribeOn(Schedulers.io())
+//                .subscribe(status -> );
+
+        //Observable<BusStopResponse> busStopCall = tflCall.getAllBusStops( )  ;
+
+//        tflCall.getAllBusStops(lineID, direction, okhttp3.Credentials.basic(appId, apiKey)
+//        .subsc);
 
 
-        Call <BusStopResponse> busStopCall = tflCall.getAllBusStops(lineID,direction ,appId ,apiKey);
-        busStopCall.enqueue(new Callback<BusStopResponse>() {
-            @Override
-            public void onResponse(Call<BusStopResponse> call, Response<BusStopResponse> response) {
-                Log.d(TAG,  " Getting response from bus stops");
-                Log.d(TAG, "URL "+call.request().url());
-                //Creating object
-                if(response.isSuccessful()) {
-                    Log.d(TAG,  " Response success");
-                     mMap.clear();
-                    getLineData(response);
-                }else{
-                    Log.d(TAG,  " Awaiting response");
-                }
-                //String encode = PolyUtil.encode(latLng);
-//                List<LatLng> qt = new ArrayList<>();
-//                //qt =PolyUtil.decode("ChIJ685WIFYViEgRHlHvBbiD5nE");
-                // "hIJA01I-8YVhkgRGJb0fW4UX7Y&key=AIzaSyD8PhziTf5drvKOLU_bQYnkfLjSHkbZDNM");
 
-                //Log.d(TAG, "fds " + baby.toString());
 
-                //convertLatLng(orderedLineRoutes, q);
-
-//                  for(int i = 0 ;i<direction.length;i++) {
-//                      Log.d(TAG, "direction" + Arrays.toString(direction));
-//                  }
-
-            }
-
-            @Override
-            public void onFailure(Call<BusStopResponse> call, Throwable t) {
-                Log.d(TAG, t.toString() + " SOMETHING IS WRONG");
-            }
-        });
     }
+
+
+
+
+
+
+
+
+
+
+
+
 
     public void getStationsBetween(){
+        Log.d(TAG, "MOO " + napId.length);
 
-    }
+        String towardsNaptan = "";
+        String previousNaptan = "";
+        double distance ;
+        for(int i =1;i<=(napId.length-1);i++){
+            Log.d(TAG, " LAT " + latLng.get(i).toString());
 
-    public void getBusArrival(Response<BusArrivalResponse> response){
+            String op = napId[i];
+           // Log.d(TAG, "MATCH " + napId[i-1] + " previous " + napId[i]);
+            if(napId[(i-1)].equals(op)){
 
-    }
-    //USE GSON BETTER WAY https://stackoverflow.com/questions/5490789/json-parsing-using-gson-for-java
-    public void getLineData(Response<BusStopResponse> response){
-        OrderedLineRoutes[] direction = response.body().getOrderedLineRoutes();
-        OrderedLineRoutes orderedLineRoutes = new OrderedLineRoutes();
-        //Getting rid of square and curly brackets
-        String str = Arrays.toString(direction).replaceAll("\\[|\\]", "");
-        String [] naptanID = new String[direction.length];
-        naptanID = str.split(",");
-        orderedLineRoutes.setNaptanIds(naptanID);
-        StopPointSequences [] stopPointSequences = response.body().getStopPointSequences();
-        StopPointSequences q = new StopPointSequences();
-
-        String stopPoint = Arrays.toString(stopPointSequences).replaceAll("\\[|\\]|", "");
-        String [] newArray = stopPoint.split(",");
-        for(int i = 0;i<newArray.length;i++){
-            newArray[i] = newArray[i].replace("&", ",");
-        }
-
-        String [] naptanlineId = new String[newArray.length];
-        String [] stopName = new String[newArray.length];
-        List<LatLng> latLng = new ArrayList<>();
-        for(int i = 0;i<newArray.length;i++) {
-            int firstPart = 0;
-            int secondPart = 0;
-            for (int j = 0; j < newArray[i].length(); j++) {
-                String word = newArray[i];
-                char c = word.charAt(j);
-                if(c == '*'){
-                    firstPart = word.indexOf(c);
-                    naptanlineId[i] = word.substring(0, word.indexOf(c));
-                }else if (c == '|'){
-                    secondPart = word.indexOf(c);
-                    stopName[i] = word.substring((firstPart+1), word.indexOf(c));
-                }else if(c == ','){
-
-                    String latitude = (word.substring((secondPart+1), (word.indexOf(c))));
-                    String longitude = (word.substring((word.indexOf(c)+1), (word.length()-1)));
-                    latLng.add(new LatLng(Double.valueOf(latitude), Double.valueOf(longitude)));
-                    if(i == (newArray.length/2)){
-                        middleLat = new LatLng(Double.valueOf(latitude), Double.valueOf(longitude));
-                    }
-                    //locations.put(naptanlineId[i], new LatLng(Double.valueOf(latitude), Double.valueOf(longitude)));
-                    //locations.add(new LatLng(Double.valueOf(latitude), Double.valueOf(longitude)));
-                }
+                previousNaptan = napId[i];
+               // distance = SphericalUtil.computeDistanceBetween();
             }
         }
-//        locations.add(new LatLng(51.515629,-0.072274));
-//        locations.add(new LatLng(51.546866, -0.104632));
-//        locations.add(new LatLng(51.548726,-0.075274));
-//        locations.add(new LatLng(51.546133,-0.07785));
-//        locations.add(new LatLng(51.547038,-0.090288));
-//        locations.add(new LatLng(51.546671,-0.075549));
 
-        q.setId(naptanlineId);
-        q.setIdName(stopName);
-        q.setIdCoord(latLng);
-        Log.d(TAG,"  dasdas " + q.getIdCoord() );
-
-//        for(int i = 0;i<q.getLength();i++){
-//            naptan_name.put(q.getId(i), q.getIdName(i));
-//        }
-//
-//        for (String name: naptan_name.keySet()){
-//            String key =name.toString();
-//            String value = naptan_name.get(name).toString();
-//            Log.d(TAG, "KEY " + key + " value " + value);
-//
-//        }
-        addMarker(q);
     }
 
 
 
 
-
-    private class DownloadTask extends AsyncTask<String, Void, String> {
+            private class DownloadTask extends AsyncTask<String, Void, String> {
 
         @Override
         protected String doInBackground(String... url) {
@@ -418,83 +645,14 @@ public class MapsActivity extends FragmentActivity implements
             return data;
         }
 
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            ParserTask parserTask = new ParserTask();
-            parserTask.execute(result);
-        }
     }
 
 
     /**
      * A class to parse the Google Places in JSON format
      */
-    public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
 
-        // Parsing the data in non-ui thread
-        @Override
-        protected List<List<HashMap<String, String>>> doInBackground(String... jsonData) {
 
-            JSONObject jObject;
-            List<List<HashMap<String, String>>> routes = null;
-
-            try {
-                jObject = new JSONObject(jsonData[0]);
-                DirectionJsonParser parser = new DirectionJsonParser();
-
-                routes = parser.parse(jObject);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return routes;
-        }
-
-        @Override
-        protected void onPostExecute(List<List<HashMap<String, String>>> result) {
-
-            ArrayList points = null;
-            PolylineOptions lineOptions = null;
-            MarkerOptions markerOptions = new MarkerOptions();
-            Drawable inboundArrow = getResources().getDrawable(R.drawable.down_arrow_24dp);
-            BitmapDescriptor icon = getMarkerIconFromDrawable(inboundArrow);
-            Drawable outBoundArrow = getResources().getDrawable(R.drawable.up_arrow_24dp);
-            BitmapDescriptor a = getMarkerIconFromDrawable(outBoundArrow);
-            for (int i = 0; i < result.size(); i++) {
-                points = new ArrayList();
-                lineOptions = new PolylineOptions();
-                Log.d("HAHA", " "+lineOptions.toString());
-                List<HashMap<String, String>> path = result.get(i);
-
-                for (int j = 0; j < path.size(); j++) {
-                    HashMap<String, String> point = path.get(j);
-
-                    double lat = Double.parseDouble(point.get("lat"));
-                    double lng = Double.parseDouble(point.get("lng"));
-                    LatLng position = new LatLng(lat, lng);
-
-                    points.add(position);
-                }
-
-                lineOptions.addAll(points);
-                lineOptions.width(12);
-                lineOptions.color(Color.BLACK);
-                lineOptions.geodesic(true);
-                lineOptions.jointType(JointType.ROUND);
-                lineOptions.startCap(new CustomCap(((icon))));
-
-            }
-            // Drawing polyline in the Google Map for the i-th route
-            if(lineOptions != null) {
-                Toast toast = Toast.makeText(getApplicationContext(), "Drawing Lines", Toast.LENGTH_LONG);
-                toast.show();
-                mMap.addPolyline(lineOptions);
-            }
-            else {
-                Log.d("onPostExecute","without Polylines drawn");
-            }
-        }
-    }
 
     private BitmapDescriptor getMarkerIconFromDrawable(Drawable drawable) {
         Canvas canvas = new Canvas();
@@ -570,5 +728,6 @@ public class MapsActivity extends FragmentActivity implements
         }
         return data;
     }
+
 
 }

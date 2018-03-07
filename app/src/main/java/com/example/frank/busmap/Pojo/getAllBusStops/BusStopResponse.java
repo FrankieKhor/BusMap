@@ -49,6 +49,10 @@ public class BusStopResponse
     {
         return orderedLineRoutes;
     }
+    public String getOrderedLineRoutes (int num)
+    {
+        return orderedLineRoutes[num].getNaptanIds(num);
+    }
 
     public void setOrderedLineRoutes (OrderedLineRoutes[] orderedLineRoutes)
     {
@@ -78,6 +82,10 @@ public class BusStopResponse
     public StopPointSequences[] getStopPointSequences ()
     {
         return stopPointSequences;
+    }
+    public String getStopPointSequences (int num)
+    {
+        return stopPointSequences[num].getIdName(num);
     }
 
     public void setStopPointSequences (StopPointSequences[] stopPointSequences)
@@ -123,6 +131,10 @@ public class BusStopResponse
     public void setMode (String mode)
     {
         this.mode = mode;
+    }
+    public int getOrderedLineLength ()
+    {
+        return orderedLineRoutes.length;
     }
 
     @Override

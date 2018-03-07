@@ -9,8 +9,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/signalr-client-sdk" />
-            <option value="$PROJECT_DIR$/signalr-client-sdk-android" />
+            <option value="$PROJECT_DIR$/drawroutemap" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

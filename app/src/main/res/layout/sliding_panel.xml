@@ -8,37 +8,63 @@
     sothree:umanoPanelHeight="0dp"
     sothree:umanoShadowHeight="4dp"
     sothree:umanoFadeColor="@android:color/transparent"
-    android:background="@color/colorPrimary">
+    android:background="@color/colorGrey">
+
 
     <RelativeLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-   >
-    <fragment
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context="com.example.frank.busmap.MapsActivity" />
+        >
 
+        <com.example.frank.busmap.MapWrapperLayout
+            android:id="@+id/map_relative_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <fragment
+                xmlns:tools="http://schemas.android.com/tools"
+                android:id="@+id/map"
+                android:name="com.google.android.gms.maps.SupportMapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context="com.example.frank.busmap.MapsActivity" />
+
+            <include
+                layout="@layout/activity_maps"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true" />
+        </com.example.frank.busmap.MapWrapperLayout>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
         <include
-            layout="@layout/activity_maps"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:id="@+id/choice_A"
+            layout="@layout/panel_menu"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
-</RelativeLayout>
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="51dp"
+            android:visibility="invisible"
+            />
 
-    <include
-        layout="@layout/panel_menu"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginBottom="51dp" />
-
-
+        <include
+            android:id="@+id/choice_B"
+            layout="@layout/start_algorithm"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="51dp"
+            android:visibility="invisible"
+            />
+    </RelativeLayout>
 </com.sothree.slidinguppanel.SlidingUpPanelLayout>

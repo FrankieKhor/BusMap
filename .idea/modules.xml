@@ -4,8 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/BusMap.iml" filepath="$PROJECT_DIR$/BusMap.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/signalr-client-sdk/signalr-client-sdk.iml" filepath="$PROJECT_DIR$/signalr-client-sdk/signalr-client-sdk.iml" />
-      <module fileurl="file://$PROJECT_DIR$/signalr-client-sdk-android/signalr-client-sdk-android.iml" filepath="$PROJECT_DIR$/signalr-client-sdk-android/signalr-client-sdk-android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/drawroutemap/drawroutemap.iml" filepath="$PROJECT_DIR$/drawroutemap/drawroutemap.iml" />
     </modules>
   </component>
 </project>

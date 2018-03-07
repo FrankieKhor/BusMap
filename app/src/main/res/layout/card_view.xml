@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/busCardView"
+        android:layout_width="167dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:elevation="100dp"
+        card_view:cardBackgroundColor="@color/cardview_light_background"
+        card_view:cardCornerRadius="8dp">
+
+        <TextView
+            android:id="@+id/busName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="10dp"
+            android:text="Name" />
+
+        <TextView
+            android:id="@+id/busId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="100dp"
+            android:layout_marginTop="10dp"
+            android:text="Bus Id" />
+
+        <ImageView
+            android:id="@+id/busImageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_launcher"
+            android:layout_marginTop="50dp"
+            android:layout_marginLeft="10dp"
+
+            />
+
+        <CheckBox
+            android:id="@+id/checkBoxFrom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="From"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="150dp"
+            android:drawableRight="?android:attr/listChoiceIndicatorMultiple"
+            android:button="@null"
+
+            />
+
+        <CheckBox
+            android:id="@+id/checkBoxTo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="To"
+            android:layout_marginLeft="100dp"
+            android:layout_marginTop="150dp"
+            android:drawableRight="?android:attr/listChoiceIndicatorMultiple"
+            android:button="@null"
+
+
+            />
+
+    </android.support.v7.widget.CardView>
+
+
+
+</LinearLayout>

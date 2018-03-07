@@ -27,8 +27,11 @@ public class StopPointSequences
 
     private StopPoint[] stopPoint;
 
+    //NaptanID
     private String[] id;
+
     private String[] idName;
+
     private List<LatLng> idCoord;
 
     private String lineId;
@@ -134,19 +137,30 @@ public class StopPointSequences
     {
         return this.id[num];
     }
-
-    public void setId (String []id)
+    public String[] getId ()
     {
-        this.id  = id;
+        return this.id;
     }
+
+    //NaptanID
+    public void setId (String id, int num)
+    {
+        this.id[num]  = id;
+    }
+
     public String getIdName (int num)
     {
         return this.idName[num];
     }
-
-    public void setIdName (String[] idName)
+    public String[] getIdName ()
     {
-        this.idName = idName;
+        return this.idName;
+    }
+
+
+    public void setIdName (String idName, int num)
+    {
+        this.idName[num] = idName;
     }
     public LatLng getIdCoord (int num)
     {
@@ -157,9 +171,9 @@ public class StopPointSequences
         return this.idCoord;
     }
 
-    public void setIdCoord (List<LatLng> idCoord)
+    public void setIdCoord (LatLng idCoord)
     {
-        this.idCoord = idCoord;
+        this.idCoord.add(idCoord);
     }
 
     @Override
