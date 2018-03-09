@@ -51,9 +51,9 @@ public class Path {
     {
         return arrayLineString[num];
     }
+
     public ArrayList<LatLng> getLineString ()
     {
-        Log.d("PATH", lineString);
         String improve = lineString.replaceAll("\\[|\\]", "");
         arrayLineString = (improve.split(","));
         ArrayList<LatLng> lob= new ArrayList<>();

@@ -1,4 +1,4 @@
-package com.example.frank.busmap;
+package com.example.frank.busmap.GoogleMap;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,7 +17,6 @@ import com.google.android.gms.maps.model.LatLng;
 public class StreetViewPanorama extends AppCompatActivity {
 
     // George St, Sydney
-    private static final LatLng SYDNEY = new LatLng(-33.87365, 151.20689);
     LatLng latLng ;
     private StreetViewPanoramaView mStreetViewPanoramaView;
 

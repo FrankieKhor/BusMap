@@ -8,7 +8,7 @@
     sothree:umanoPanelHeight="0dp"
     sothree:umanoShadowHeight="4dp"
     sothree:umanoFadeColor="@android:color/transparent"
-    android:background="@color/colorGrey">
+    android:background="@color/lightGrey">
 
 
     <RelativeLayout
@@ -16,7 +16,7 @@
     android:layout_height="match_parent"
         >
 
-        <com.example.frank.busmap.MapWrapperLayout
+        <com.example.frank.busmap.CustomInfoWindow.MapWrapperLayout
             android:id="@+id/map_relative_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -27,7 +27,7 @@
                 android:name="com.google.android.gms.maps.SupportMapFragment"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                tools:context="com.example.frank.busmap.MapsActivity" />
+                tools:context="com.example.frank.busmap.MainActivity" />
 
             <include
                 layout="@layout/activity_maps"
@@ -36,13 +36,13 @@
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true" />
-        </com.example.frank.busmap.MapWrapperLayout>
+        </com.example.frank.busmap.CustomInfoWindow.MapWrapperLayout>
 
     </RelativeLayout>
 
     <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_width="match_parent"
+        android:layout_height="300dp">
         <include
             android:id="@+id/choice_A"
             layout="@layout/panel_menu"
@@ -51,7 +51,6 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:layout_marginBottom="51dp"
             android:visibility="invisible"
             />
 

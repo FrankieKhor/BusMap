@@ -51,6 +51,7 @@ dependencies {
     implementation 'com.androidmapsextensions:android-maps-extensions:2.4.0'
     implementation 'com.google.android.gms:play-services:11.8.0'
     implementation 'com.github.aarsy.googlemapsanimations:googlemapsanimations:1.0.5'
+    implementation 'com.codemybrainsout.placesearchdialog:placesearch:1.0.1'
 
     implementation project(':drawroutemap')
 

@@ -8,4 +8,7 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="spinner_style" parent= "android:Widget.DeviceDefault.Spinner">
+        <item name="android:background">@drawable/background_spinner</item>
+    </style>
 </resources>

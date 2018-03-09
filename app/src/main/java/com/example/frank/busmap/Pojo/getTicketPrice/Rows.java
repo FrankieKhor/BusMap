@@ -1,7 +1,7 @@
 package com.example.frank.busmap.Pojo.getTicketPrice;
 
 /**
- * Created by frank on 07/03/2018.
+ * Created by frank on 08/03/2018.
  */
 
 public class Rows {

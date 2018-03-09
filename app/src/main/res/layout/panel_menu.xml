@@ -5,18 +5,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
 
 
     <AutoCompleteTextView
         android:id="@+id/busNumber"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="169dp"
+        android:layout_height="35dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginEnd="108dp"
         android:layout_marginStart="108dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="32dp"
         android:background="@color/colorPrimaryLight"
         android:completionThreshold="1"
         android:hint="Enter Bus Number..."
@@ -24,12 +24,12 @@
         android:inputType="text"
         android:padding="5dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
 
-    <com.seatgeek.placesautocomplete.PlacesAutocompleteTextView
+    <android.support.design.widget.TextInputEditText
         android:id="@+id/places_autocomplete_from"
         android:layout_width="169dp"
         android:layout_height="35dp"
@@ -44,16 +44,15 @@
         app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/busNumber"
-        app:pacv_googleMapsApiKey="@string/google_maps_key" />
+        android:maxLines="1"
+        android:maxLength="20"
+        android:ellipsize="end"/>
 
-<TextView
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:id="@+id/textty"/>
-    <com.seatgeek.placesautocomplete.PlacesAutocompleteTextView
+
+    <android.support.design.widget.TextInputEditText
         android:id="@+id/places_autocomplete_To"
         android:layout_width="169dp"
-        android:layout_height="0dp"
+        android:layout_height="35dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
@@ -65,15 +64,16 @@
         app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/places_autocomplete_from"
-        app:pacv_googleMapsApiKey="@string/google_maps_key" />
-
+        android:maxLines="1"
+        android:maxLength="20"
+        android:ellipsize="end"/>
 
 
     <ImageView
         android:id="@+id/busDirection"
         android:layout_width="wrap_content"
         android:layout_height="35dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="32dp"
         android:rotation="90"
         android:src="@drawable/switch_direction_24dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -97,28 +97,12 @@
         android:layout_width="30dp"
         android:layout_height="35dp"
         android:layout_marginStart="32dp"
-        android:layout_marginLeft="32dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="32dp"
+        android:src="@drawable/search_24dp"
         app:layout_constraintEnd_toStartOf="@+id/busNumber"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:src="@drawable/search_24dp" />
-
-    <include
-        android:id="@+id/include"
-        layout="@layout/bus_stop"
-        android:layout_width="389dp"
-        android:layout_height="289dp"
-        android:layout_marginBottom="4dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent" />
-
-
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 </android.support.constraint.ConstraintLayout>

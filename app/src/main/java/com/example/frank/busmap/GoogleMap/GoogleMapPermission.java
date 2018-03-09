@@ -1,4 +1,4 @@
-package com.example.frank.busmap;
+package com.example.frank.busmap.GoogleMap;
 
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -11,6 +11,7 @@ import android.util.Log;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -35,18 +36,23 @@ public class GoogleMapPermission extends FragmentActivity  {
     private LocationServices mLastKnownLocation;
     GoogleMap mMap;
 
-    public void updateLocationUI(GoogleMap mMap) {
+    public GoogleMapPermission(FusedLocationProviderClient mFusedLocationClient){
+        this.mFusedLocationProviderClient = mFusedLocationClient;
+
+    }
+
+
+    public void updateLocationUI(GoogleMap mMap, boolean PermissionGranted) {
         this.mMap = mMap;
         if (mMap == null) {
             Log.d(TAG,"NULL");
-
             return;
         }
         try {
-            if (mLocationPermissionGranted) {
+            if (PermissionGranted) {
                 Log.d(TAG,"1");
                 mMap.setMyLocationEnabled(true);
-                mMap.getUiSettings().setMyLocationButtonEnabled(true);
+                mMap.getUiSettings().setMyLocationButtonEnabled(false);
                 getLastLocation();
 
 
@@ -55,7 +61,7 @@ public class GoogleMapPermission extends FragmentActivity  {
                 mMap.setMyLocationEnabled(false);
                 mMap.getUiSettings().setMyLocationButtonEnabled(false);
                 mLastKnownLocation = null;
-                getLocationPermission();
+
             }
         } catch (SecurityException e)  {
             Log.e("Exception: %s", e.getMessage());
@@ -93,7 +99,7 @@ public class GoogleMapPermission extends FragmentActivity  {
                 }
             }
         }
-        updateLocationUI(mMap);
+        //updateLocationUI(mMap);
     }
 
 
@@ -102,12 +108,15 @@ public class GoogleMapPermission extends FragmentActivity  {
                 .addOnSuccessListener(this, new OnSuccessListener<Location>() {
                     @Override
                     public void onSuccess(Location location) {
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
                                 new LatLng(location.getLatitude(),
-                                        location.getLongitude()), 15));
+                                        location.getLongitude()), 15);
+
+                        mMap.animateCamera(cameraUpdate);
+
                         // Got last known location. In some rare situations this can be null.
                         if (location != null) {
-                            updateLocationUI(mMap);
+                            //updateLocationUI(mMap);
                             // Logic to handle location object
                         }
                     }

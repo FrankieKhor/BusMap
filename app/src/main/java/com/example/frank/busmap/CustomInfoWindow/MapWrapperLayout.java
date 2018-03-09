@@ -1,4 +1,4 @@
-package com.example.frank.busmap;
+package com.example.frank.busmap.CustomInfoWindow;
 
 import android.content.Context;
 import android.graphics.Point;

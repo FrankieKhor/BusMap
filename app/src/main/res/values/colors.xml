@@ -4,6 +4,12 @@
     <color name="colorPrimaryLight">#359eff</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="colorGrey">#d0c8d7</color>
+    <color name="colorGrey">#77777D</color>
+    <color name="colorRed">#ff0004</color>
     <color name="colorRouteLine">#ff00ea</color>
+    <color name="colourPath1">#ff00ea</color>
+    <color name="colourPath2">#ff00ea</color>
+    <color name="colourPath3">#ff00ea</color>
+    <color name="colourPath4">#ff00ea</color>
+    <color name="lightGrey">#BFC4CA</color>
 </resources>

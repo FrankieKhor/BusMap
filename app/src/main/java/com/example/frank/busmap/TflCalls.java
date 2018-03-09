@@ -5,34 +5,30 @@ import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ahmadrosid.lib.drawroutemap.DrawMarker;
 import com.ahmadrosid.lib.drawroutemap.DrawRouteMaps;
-import com.arsy.maps_library.MapRipple;
 import com.example.frank.busmap.Pojo.getAllBusStops.BusStopResponse;
 import com.example.frank.busmap.Pojo.getAllBusStops.OrderedLineRoutes;
-import com.example.frank.busmap.Pojo.getAllBusStops.StopPoint;
 import com.example.frank.busmap.Pojo.getAllBusStops.StopPointSequences;
 import com.example.frank.busmap.Pojo.getBusArrival.BusArrivalResponse;
 import com.example.frank.busmap.Pojo.getJourneyFromTo.JourneyFromToResponse;
 import com.example.frank.busmap.Pojo.getJourneyFromTo.Journeys;
 import com.example.frank.busmap.Pojo.getJourneyFromTo.Legs;
 import com.example.frank.busmap.Pojo.getStopPointArrival.StopPointArrival;
-import com.example.frank.busmap.Rest.TflApi;
+import com.example.frank.busmap.Pojo.getTicketPrice.Rows;
+import com.example.frank.busmap.Pojo.getTicketPrice.TicketPrice;
+import com.example.frank.busmap.Pojo.getTicketPrice.TicketsAvailable;
+import com.example.frank.busmap.Pojo.Rest.TflApi;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Dash;
 import com.google.android.gms.maps.model.Dot;
 import com.google.android.gms.maps.model.Gap;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PatternItem;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -40,13 +36,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -54,10 +47,9 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static com.example.frank.busmap.MapsActivity.getPixelsFromDp;
-import static com.example.frank.busmap.MapsActivity.mMap;
-import static com.example.frank.busmap.MapsActivity.napId;
-import static com.example.frank.busmap.MapsActivity.stopName;
+import static com.example.frank.busmap.MainActivity.mMap;
+import static com.example.frank.busmap.MainActivity.napId;
+import static com.example.frank.busmap.MainActivity.stopName;
 
 /**
  * Created by frank on 05/03/2018.
@@ -66,8 +58,7 @@ import static com.example.frank.busmap.MapsActivity.stopName;
 public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineClickListener{
     private TflApi tflCall;
     private static final String TAG = TflCalls.class.getName();
-    static Context mapContext = MapsActivity.getMapContext();
-
+    static Context mapContext = MainActivity.getMapContext();
     static Journeys[] journey;
 
 
@@ -77,21 +68,21 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
 
     public Retrofit createRetrofit() {
 
-        if (MapsActivity.retrofit == null) {
+        if (MainActivity.retrofit == null) {
             Gson gson = new GsonBuilder()
                     .setLenient()
                     .create();
-            MapsActivity.retrofit = new Retrofit.Builder()
+            MainActivity.retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                     .addConverterFactory(GsonConverterFactory.create(gson))
                     .build();
         }
-        return MapsActivity.retrofit;
+        return MainActivity.retrofit;
     }
 
     public void createRetrofitClass(){
-        this.tflCall = MapsActivity.retrofit.create(TflApi.class);
+        this.tflCall = MainActivity.retrofit.create(TflApi.class);
 
     }
 
@@ -103,12 +94,14 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
             case 2:
                 callAlternateBus(appId, apiKey);
                 break;
+            case 3:
+                callTicketPrice(appId, apiKey);
         }
     }
 
     private void getBusStopCall(final String appId, final String apiKey) {
 
-        Call<BusStopResponse> busStopCall = tflCall.getAllBusStops(MapsActivity.lineID, MapsActivity.direction, appId, apiKey);
+        Call<BusStopResponse> busStopCall = tflCall.getAllBusStops(MainActivity.lineID, MainActivity.direction, appId, apiKey);
         busStopCall.enqueue(new Callback<BusStopResponse>() {
             @Override
             public void onResponse(Call<BusStopResponse> call, Response<BusStopResponse> response) {
@@ -117,9 +110,9 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
                 //Creating object
                 if (response.isSuccessful()) {
                     Log.d(TAG, " BUS STOP Response success");
-                    MapsActivity.mMap.clear();
+                    MainActivity.mMap.clear();
                     getLineData(response.body());
-                    MapsActivity.cBusArrivalisFinished = true;
+                    MainActivity.cBusArrivalisFinished = true;
                 } else {
                     Log.d(TAG, " Awaiting response");
                 }
@@ -148,68 +141,10 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
         });
     }
 
-//    public void createCustomInfoWindow(){
-//        final MapWrapperLayout mapWrapperLayout = (MapWrapperLayout)findViewById(R.id.map_relative_layout);
-//        mapWrapperLayout.init(mMap, getPixelsFromDp(this, 39 + 20));
-//        this.infoWindow = (ViewGroup)getLayoutInflater().inflate(R.layout.custom_infowindow, null);
-//
-//        this.infoTitle = (TextView)infoWindow.findViewById(R.id.nameTxt);
-//        this.infoSnippet = (TextView)infoWindow.findViewById(R.id.addressTxt);
-//        this.infoButton1 = (Button)infoWindow.findViewById(R.id.btnOne);
-//        this.infoButtonListener = new OnInfoWindowElemTouchListener(infoButton1, getResources().getDrawable(R.drawable.btn_bg), getResources().getDrawable(R.drawable.btn_bg)){
-//            @Override
-//            protected void onClickConfirmed(View v, Marker marker) {
-//                // Here we can perform some action triggered after clicking the button
-//                Toast.makeText(MapsActivity.this, "click on button 1", Toast.LENGTH_SHORT).show();
-//            }
-//        };
-//        this.infoButton1.setOnTouchListener(infoButtonListener);
-//
-//
-//        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
-//            @Override
-//            public View getInfoWindow(Marker marker) {
-//                Log.d(TAG, "MARKER " + marker.getId());
-//                return null;
-//            }
-//
-//            @Override
-//            public View getInfoContents(Marker marker) {
-//                // Setting up the infoWindow with current's marker info
-//                infoSnippet.setText(marker.getTitle());
-//                infoTitle.setText(marker.getSnippet());
-//                infoButtonListener.setMarker(marker);
-//
-//                // We must call this to set the current marker and infoWindow references
-//                // to the MapWrapperLayout
-//                mapWrapperLayout.setMarkerWithInfoWindow(marker, infoWindow);
-//                return infoWindow;
-//            }
-//        });
-////        TextView tv = (TextView) findViewById(R.id.mobileTxt) ;
-////        tv.setText("BOOOOOO");
-//        // Let's add a couple of markers
-//        mMap.addMarker(new MarkerOptions()
-//                .position(latlng1)
-//                .title("Source")
-//                .snippet("Comapny Name")
-//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-//
-//        mMap.addMarker(new MarkerOptions()
-//                .position(latlng2)
-//                .title("Destination")
-//                .snippet("AmisunXXXXXX")
-//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
-//
-//        //googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 15));
-//        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latlng1, 10));
-//        //Setting a location and moving camera
-//        //getDeviceLocation();
-//    }
 
     public void getBusArrivalCall(String appId, String apiKey) {
-        if (MapsActivity.cBusArrivalisFinished = true) {
-            Call<List<BusArrivalResponse>> busArrivalCall = tflCall.getBusArrival(MapsActivity.lineID, appId, apiKey);
+        if (MainActivity.cBusArrivalisFinished = true) {
+            Call<List<BusArrivalResponse>> busArrivalCall = tflCall.getBusArrival(MainActivity.lineID, appId, apiKey);
             busArrivalCall.enqueue(new Callback<List<BusArrivalResponse>>() {
 
                 @Override
@@ -220,8 +155,8 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
                     //Creating object
                     if (response.isSuccessful()) {
                         Log.d(TAG, " ARRIVAL BUS Response success");
-                        MapsActivity.StudentData = response.body();
-                        Collections.sort(MapsActivity.StudentData);
+                        MainActivity.StudentData = response.body();
+                        Collections.sort(MainActivity.StudentData);
 //                        for (int i = 0; i < StudentData.size(); i++) {
 //
 //                            nextStation.add(StudentData.get(i).getStationName());
@@ -238,7 +173,7 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
 //                        Log.d(TAG, "Time to station: " + timeToStation);
 //                        Log.d(TAG, "Going to " + nextStation.toString() + " minute");
 //                        Log.d(TAG, "towards " + towardsDestination.toString());
-                        MapsActivity.cBusStopisFinished = true;
+                        MainActivity.cBusStopisFinished = true;
                         //   Log.d(TAG, "cBusStopisFinished" + cBusStopisFinished);
                     } else {
                         Log.d(TAG, " Awaiting response");
@@ -258,7 +193,7 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
 
     //NEEDS WAY TO ONLY SHOW ONE
     private void getBusStopArrival(final String appId, final String apiKey) {
-        if (MapsActivity.cBusArrivalisFinished) {
+        if (MainActivity.cBusArrivalisFinished) {
             String[] qewty = {"4900801618", "490005530W"};
             for (int i = 0; i < napId.length; i++) {
                 final Call<List<StopPointArrival>> StopArrival = tflCall.getStopArrival(napId[i], appId, apiKey);
@@ -268,11 +203,11 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
                         Log.d(TAG, " Getting response from Bus Stop");
                         if (response.isSuccessful()) {
                             Log.d(TAG, " BUS STOP ARRIVAL Response success");
-                            MapsActivity.STOPDATA = response.body();
+                            MainActivity.STOPDATA = response.body();
                             //Collections.sort(STOPDATA);
 
                             for (int i = 0; i < response.body().size(); i++) {
-                                Log.d(TAG, "STATION " + MapsActivity.STOPDATA.get(i).getStationName() + " time to statio " + MapsActivity.STOPDATA.get(i).getTimeToStation());
+                                Log.d(TAG, "STATION " + MainActivity.STOPDATA.get(i).getStationName() + " time to statio " + MainActivity.STOPDATA.get(i).getTimeToStation());
 
                             }
 //                    for(int i =0;i<napId.length;i++){
@@ -305,12 +240,17 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
         //getBusStopArrival(appId, apiKey);
     }
 
+    public void callTicketPrice(String appId, String apiKey){
+        getBusTicketPrice(appId, apiKey);
+    }
+
     public void callAlternateBus(String appId, String apiKey) {
         getBusJourney(appId, apiKey);
     }
+
     public void getBusJourney(String appId, String apiKey) {
-        final String from = "51.564169, -0.278199";
-        final String to = "51.540703, -0.299549";
+        final String from = "51.562075, -0.280665";
+        final String to = "51.442780, -0.410232";
 
         Call<JourneyFromToResponse> busJourney = tflCall.getJourney(from, to, appId, apiKey);
         Log.d(TAG, " Getting response from Bus journey");
@@ -318,11 +258,12 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
         busJourney.enqueue(new Callback<JourneyFromToResponse>() {
             @Override
             public void onResponse(Call<JourneyFromToResponse> call, Response<JourneyFromToResponse> response) {
+                MainActivity.layoutBusDirection.setVisibility(View.GONE);
+                MainActivity.layoutBusRoute.setVisibility(View.VISIBLE);
+                MainActivity.sup.setPanelHeight(110);
                 Log.d(TAG, "Bus journey success " + call.request().url().toString());
 
                 JourneyFromToResponse a = response.body();
-                Log.d(TAG, " " + a.getJourneys().length);
-                //drawLineHardcode();
                 drawPathLine(a);
             }
 
@@ -338,16 +279,85 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
 
 
     }
+
+    public void getBusTicketPrice(String appId, String apiKey){
+        String stopPointFrom = "940GZZLUWYP";
+        String stopPointTo = "910GTWCKNHM";
+        Call<List<TicketPrice>> getTickTock = tflCall.getTicketPrices(stopPointFrom, stopPointTo, appId, apiKey );
+        Log.d(TAG, " Getting ticket response" );
+
+        getTickTock.enqueue(new Callback<List<TicketPrice>>() {
+            @Override
+            public void onResponse(Call<List<TicketPrice>> call, Response<List<TicketPrice>> response) {
+                List<TicketPrice> rb = response.body();
+                double totalCost;
+                String ticketType;
+                Legs [] lo = new Legs[0];
+                for(int i =0;i<rb.size()-1;i++){
+                    Rows[] row = rb.get(i).getRows();
+                    TicketsAvailable[] ticketsAvailable =  row[i].getTicketsAvailable();
+
+                    //ONly using offpeak but ticketsAvailable.length would use this
+                    for(int j =0;j<1;j++){
+                         totalCost = Double.valueOf(ticketsAvailable[j].getCost());
+                         ticketType = ticketsAvailable[j].getTicketTime().getType();
+                        SelectingRoute selectingRoute = new SelectingRoute(journey);
+                        lo = selectingRoute.getCheapestRoute(totalCost, ticketType).getLegs();
+                    }
+                }
+                    mMap.clear();
+                addingPaths(lo, 1);
+
+
+            }
+
+            @Override
+            public void onFailure(Call<List<TicketPrice>> call, Throwable t) {
+                Log.d(TAG, "tick price failure " + call.request().url().toString() + " " + t.toString());
+
+            }
+        });
+
+    }
     public void drawPathLine(JourneyFromToResponse jftr) {
 
-        MapsActivity.mMap.clear();
+        final LatLng fromWembley = new LatLng(51.562075, -0.280665);
+        final LatLng toEdgaware = new LatLng(51.610310, -0.267138);
+
+
+        MainActivity.mMap.clear();
+            DrawMarker.getInstance(mapContext).draw(MainActivity.mMap, fromWembley, R.drawable.pin_start_24dp );
+            DrawMarker.getInstance(mapContext).draw(MainActivity.mMap, toEdgaware, R.drawable.pin_end_24dp);
+
+
         journey = jftr.getJourneys();
-        Legs[] legs = journey[0].getLegs();
-        Legs[] legs1 = journey[1].getLegs();
-        Legs[] legs2 = journey[2].getLegs();
-        Legs[] legs3 = journey[3].getLegs();
+
+        for(int i =0;i<3;i++){
+            Log.d(TAG, " I " + i + " "  +journey.length);
+            Legs [] legs = journey[i].getLegs();
+            if(i ==0){
+                Log.d(TAG, "a1");
+                addingPaths(legs, 1);
+            }
+//            else if(i % 4 == 1){
+//                Log.d(TAG, "a2");
+//
+//                addingPaths(legs, 2);
+//            }
+//            else if(i %4 == 2){
+//                Log.d(TAG, "a3");
+//
+//                addingPaths(legs, 2);
+//            }
+//            else if(i %4 == 3){
+//                Log.d(TAG, "a4");
+//
+//                addingPaths(legs, 2);
+//            }
+        }
+
         CameraUpdate location = CameraUpdateFactory.newLatLngZoom(new LatLng(51.564072184349996, -0.27827641759000005), 14);
-        MapsActivity.mMap.animateCamera(location);
+        MainActivity.mMap.animateCamera(location);
 
         //                IconGenerator iconGenerator = new IconGenerator(this);
 //                addIcon(iconGenerator, "Disruption", new LatLng(51.564072184349996, -0.27827641759000005));
@@ -364,19 +374,8 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
 //}
 //                mapRipple.startRippleMapAnimation();
 
-        //legs[0].getPath().setLineString();
-//        Log.d(TAG, "duration 1 " + journey[0].getDuration());
-//        Log.d(TAG, "duration 2 " + journey[1].getDuration());
-//        Log.d(TAG, "duration 3 " + journey[2].getDuration());
 
-        Log.d(TAG, "legs " + legs[1].getPath().getLineString().toString());
-        Log.d(TAG, "legs1 " + legs.length);
-        Log.d(TAG, "legs2 " + legs1.length);
-        Log.d(TAG, "legs3 " + legs2.length);
-        Log.d(TAG, "legs4 " + legs3.length);
-
-
-        addingPaths(legs, 1);
+     //   addingPaths(legs, 1);
 //        addingPaths(legs1, 2);
 //        addingPaths(legs2, 3);
 //        addingPaths(legs3, 4);
@@ -386,7 +385,6 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
     public void addingPaths(Legs[] legs, int colourChoice){
         List<PatternItem> patternWalk = Arrays.<PatternItem>asList(new Dot());
         List<PatternItem> patternTube = Arrays.<PatternItem>asList(new Dot(), new Gap(20), new Dash(30), new Gap(20));
-
         List<PatternItem> patternOverground = Arrays.<PatternItem>asList(new Dot(), new Gap(20), new Dash(30), new Gap(20));
 
         for(int i =0;i<legs.length;i++){
@@ -432,9 +430,9 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
                 break;
         }
 
-        Polyline polyline = MapsActivity.mMap.addPolyline(polylineOptions);
+        Polyline polyline = MainActivity.mMap.addPolyline(polylineOptions);
         polyline.setTag(legs[i].getInstruction() + " and Arrive in " + legs[i].getDuration() + " minute");
-        MapsActivity.mMap.setOnPolylineClickListener(this);
+        MainActivity.mMap.setOnPolylineClickListener(this);
     }
 
 
@@ -454,9 +452,9 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
                 break;
         }
 
-        Polyline polyline = MapsActivity.mMap.addPolyline(polylineOptions);
+        Polyline polyline = MainActivity.mMap.addPolyline(polylineOptions);
         polyline.setTag(legs[i].getInstruction() + " and Arrive in " + legs[i].getDuration() + " minute");
-        MapsActivity.mMap.setOnPolylineClickListener(this);
+        MainActivity.mMap.setOnPolylineClickListener(this);
 
 
     }
@@ -468,6 +466,8 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
         Toast.makeText(mapContext, polyline.getTag().toString(),
                 Toast.LENGTH_SHORT).show();
     }
+
+
 
 
 
@@ -486,7 +486,7 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
 
         napId = new String[newStopPointSequence.length];
         stopName = new String[newStopPointSequence.length];
-        MapsActivity.latLng = new ArrayList<>();
+        MainActivity.latLng = new ArrayList<>();
 
         for (int i = 0; i < newStopPointSequence.length; i++) {
             //Log.d(TAG, " i " + i);
@@ -509,9 +509,9 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
 
                     String latitude = (word.substring((secondPart + 1), (word.indexOf(c))));
                     String longitude = (word.substring((word.indexOf(c) + 1), (word.length() - 1)));
-                    MapsActivity.latLng.add(new LatLng(Double.valueOf(latitude), Double.valueOf(longitude)));
+                    MainActivity.latLng.add(new LatLng(Double.valueOf(latitude), Double.valueOf(longitude)));
                     if (i == (newStopPointSequence.length / 2)) {
-                        MapsActivity.middleLat = new LatLng(Double.valueOf(latitude), Double.valueOf(longitude));
+                        MainActivity.middleLat = new LatLng(Double.valueOf(latitude), Double.valueOf(longitude));
                     }
                 }
             }
@@ -521,7 +521,7 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
         // Log.d(TAG, " LOG " + Arrays.toString(newStopPointSequence));
         Log.d(TAG, "  A " + Arrays.toString(napId) + " l " + napId.length);
         Log.d(TAG, "  B " + Arrays.toString(stopName)+" l " + stopName.length);
-        Log.d(TAG, "  C " + MapsActivity.latLng.toString()+" l " + MapsActivity.latLng.size());
+        Log.d(TAG, "  C " + MainActivity.latLng.toString()+" l " + MainActivity.latLng.size());
         //           Log.d(TAG, "  D " + response[0].getId());
 //            Log.d(TAG, "  E " + response[0].getIdName());
 //            Log.d(TAG, "  F " + response[0].getIdCoord());
@@ -561,14 +561,14 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
 
 public void drawLine(OrderedLineRoutes [] orderedLineRoutes) {
     CameraUpdate location = CameraUpdateFactory.newLatLngZoom(
-            MapsActivity.latLng.get(MapsActivity.latLng.size() / 2), 12);
-    MapsActivity.mMap.animateCamera(location);
+            MainActivity.latLng.get(MainActivity.latLng.size() / 2), 12);
+    MainActivity.mMap.animateCamera(location);
 
-    for (int i = 1; i < MapsActivity.latLng.size(); i++) {
-        float rotationDegrees = (float) com.example.frank.busmap.LatLngUtils.angleFromCoordinate(MapsActivity.latLng.get(i).latitude, MapsActivity.latLng.get(i).longitude, MapsActivity.latLng.get((i - 1)).latitude, MapsActivity.latLng.get((i - 1)).longitude);
+    for (int i = 1; i < MainActivity.latLng.size(); i++) {
+        float rotationDegrees = (float) com.example.frank.busmap.LatLngUtils.angleFromCoordinate(MainActivity.latLng.get(i).latitude, MainActivity.latLng.get(i).longitude, MainActivity.latLng.get((i - 1)).latitude, MainActivity.latLng.get((i - 1)).longitude);
         //Drawing lines
         DrawRouteMaps.getInstance(mapContext)
-                .draw(MapsActivity.latLng.get((i - 1)), MapsActivity.latLng.get(i), MapsActivity.mMap);
+                .draw(MainActivity.latLng.get((i - 1)), MainActivity.latLng.get(i), MainActivity.mMap);
         //Drawing arrows in between stops
         //LatLng middlePos = com.example.frank.busmap.LatLngUtils.midPoint(latLng.get((i-1)).latitude, latLng.get((i-1)).longitude, latLng.get(i).latitude, latLng.get(i).longitude);
         //DrawMarker.getInstance(mapContext).draw(mMap, middlePos, R.drawable.up_arrow_24dp, stopName[(i-1)], rotationDegrees);
@@ -576,12 +576,12 @@ public void drawLine(OrderedLineRoutes [] orderedLineRoutes) {
 
         //Drawing markers
         if (i == 1) {
-            DrawMarker.getInstance(mapContext).draw(MapsActivity.mMap, MapsActivity.latLng.get(0), R.drawable.pin_start_24dp, stopName[(i - 1)] ,MapsActivity.direction + " towards" + orderedLineRoutes[0].getName() );
-        } else if (i == (MapsActivity.latLng.size() - 1)) {
-            DrawMarker.getInstance(mapContext).draw(MapsActivity.mMap, MapsActivity.latLng.get(MapsActivity.latLng.size() - 1), R.drawable.pin_end_24dp, stopName[(MapsActivity.latLng.size() - 1)], MapsActivity.direction + " towards" + orderedLineRoutes[0].getName());
+            DrawMarker.getInstance(mapContext).draw(MainActivity.mMap, MainActivity.latLng.get(0), R.drawable.pin_start_24dp, stopName[(i - 1)] , MainActivity.direction + " towards" + orderedLineRoutes[0].getName() );
+        } else if (i == (MainActivity.latLng.size() - 1)) {
+            DrawMarker.getInstance(mapContext).draw(MainActivity.mMap, MainActivity.latLng.get(MainActivity.latLng.size() - 1), R.drawable.pin_end_24dp, stopName[(MainActivity.latLng.size() - 1)], MainActivity.direction + " towards" + orderedLineRoutes[0].getName());
         } else {
-            DrawMarker.getInstance(mapContext).draw(MapsActivity.mMap, MapsActivity.latLng.get((i - 1)), R.drawable.pin_every_24dp, stopName[(i - 1)], MapsActivity.direction + " towards" + orderedLineRoutes[0].getName());
-            DrawMarker.getInstance(mapContext).draw(MapsActivity.mMap, MapsActivity.latLng.get(i), R.drawable.pin_every_24dp, stopName[i], MapsActivity.direction + " towards" + orderedLineRoutes[0].getName());
+            DrawMarker.getInstance(mapContext).draw(MainActivity.mMap, MainActivity.latLng.get((i - 1)), R.drawable.pin_every_24dp, stopName[(i - 1)], MainActivity.direction + " towards" + orderedLineRoutes[0].getName());
+            DrawMarker.getInstance(mapContext).draw(MainActivity.mMap, MainActivity.latLng.get(i), R.drawable.pin_every_24dp, stopName[i], MainActivity.direction + " towards" + orderedLineRoutes[0].getName());
         }
 
 

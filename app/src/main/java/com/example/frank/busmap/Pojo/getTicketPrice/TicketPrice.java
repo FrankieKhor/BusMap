@@ -1,9 +1,10 @@
 package com.example.frank.busmap.Pojo.getTicketPrice;
 
+
 import com.google.android.gms.nearby.messages.Messages;
 
 /**
- * Created by frank on 07/03/2018.
+ * Created by frank on 08/03/2018.
  */
 
 public class TicketPrice {
@@ -11,7 +12,7 @@ public class TicketPrice {
 
     private String $type;
 
-    private Messages[] messages;
+    private Message[] message;
 
     private String header;
 
@@ -37,14 +38,14 @@ public class TicketPrice {
         this.$type = $type;
     }
 
-    public Messages[] getMessages ()
+    public Message[] getMessages ()
     {
-        return messages;
+        return message;
     }
 
     public void setMessages (Messages[] messages)
     {
-        this.messages = messages;
+        this.message = message;
     }
 
     public String getHeader ()
@@ -70,6 +71,6 @@ public class TicketPrice {
     @Override
     public String toString()
     {
-        return "ClassPojo [index = "+index+", $type = "+$type+", messages = "+messages+", header = "+header+", rows = "+rows+"]";
+        return "ClassPojo [index = "+index+", $type = "+$type+", messages = "+message+", header = "+header+", rows = "+rows+"]";
     }
 }
