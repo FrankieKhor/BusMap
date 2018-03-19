@@ -2,14 +2,19 @@ package com.example.frank.busmap;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.Interpolator;
 import android.widget.Toast;
 
 import com.ahmadrosid.lib.drawroutemap.DrawMarker;
 import com.ahmadrosid.lib.drawroutemap.DrawRouteMaps;
+import com.ahmadrosid.lib.drawroutemap.LatLngInterpolator;
 import com.example.frank.busmap.Pojo.getAllBusStops.BusStopResponse;
 import com.example.frank.busmap.Pojo.getAllBusStops.OrderedLineRoutes;
 import com.example.frank.busmap.Pojo.getAllBusStops.StopPointSequences;
@@ -25,10 +30,13 @@ import com.example.frank.busmap.Pojo.Rest.TflApi;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.Dash;
 import com.google.android.gms.maps.model.Dot;
 import com.google.android.gms.maps.model.Gap;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PatternItem;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -60,7 +68,9 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
     private static final String TAG = TflCalls.class.getName();
     static Context mapContext = MainActivity.getMapContext();
     static Journeys[] journey;
-
+    static ArrayList<String> wayPoint = new ArrayList<>();
+    final LatLng from = new LatLng(51.562075, -0.280665);
+    final LatLng to = new LatLng(51.615786, -0.262034);
 
     //    String appId = getString(R.string.tfl_app_id);
 //    String apiKey = getString(R.string.tfl_key);
@@ -105,7 +115,7 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
         busStopCall.enqueue(new Callback<BusStopResponse>() {
             @Override
             public void onResponse(Call<BusStopResponse> call, Response<BusStopResponse> response) {
-                Log.d(TAG, " Getting response from all bus stops");
+                Log.d(TAG, " Getting response from all bus stops " + call.request().url().toString());
                 //  Log.d(TAG, "URL " + call.request().url());
                 //Creating object
                 if (response.isSuccessful()) {
@@ -149,7 +159,7 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
 
                 @Override
                 public void onResponse(Call<List<BusArrivalResponse>> call, Response<List<BusArrivalResponse>> response) {
-                    Log.d(TAG, " Getting response from Bus Arrival");
+                    Log.d(TAG, " Getting response from Bus Arrival " + call.request().url().toString());
                     //    Log.d(TAG, "URL " + call.request().url());
 
                     //Creating object
@@ -200,7 +210,7 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
                 StopArrival.enqueue(new Callback<List<StopPointArrival>>() {
                     @Override
                     public void onResponse(Call<List<StopPointArrival>> call, Response<List<StopPointArrival>> response) {
-                        Log.d(TAG, " Getting response from Bus Stop");
+                        Log.d(TAG, " Getting response from Bus Stops " + call.request().url().toString());
                         if (response.isSuccessful()) {
                             Log.d(TAG, " BUS STOP ARRIVAL Response success");
                             MainActivity.STOPDATA = response.body();
@@ -246,14 +256,17 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
 
     public void callAlternateBus(String appId, String apiKey) {
         getBusJourney(appId, apiKey);
+        getBusTicketPrice(appId, apiKey);
     }
 
-    public void getBusJourney(String appId, String apiKey) {
-        final String from = "51.562075, -0.280665";
-        final String to = "51.442780, -0.410232";
-
-        Call<JourneyFromToResponse> busJourney = tflCall.getJourney(from, to, appId, apiKey);
-        Log.d(TAG, " Getting response from Bus journey");
+    public void getBusJourney(final String appId, final String apiKey) {
+//        final String from = MainActivity.travelFrom.toString();
+//        final String to = MainActivity.travelTo.toString();
+//
+        String f = from.latitude + ", " + from.longitude;
+        String t = to.latitude + ", " + to.longitude;
+        Call<JourneyFromToResponse> busJourney = tflCall.getJourney(f, t, appId, apiKey);
+        Log.d(TAG, " Getting response from Bus journey ");
 
         busJourney.enqueue(new Callback<JourneyFromToResponse>() {
             @Override
@@ -264,7 +277,121 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
                 Log.d(TAG, "Bus journey success " + call.request().url().toString());
 
                 JourneyFromToResponse a = response.body();
-                drawPathLine(a);
+                journey = a.getJourneys();
+                //getBusJourneyLegs(appId, apiKey);
+                drawPathLine();
+            }
+
+            @Override
+            public void onFailure(Call<JourneyFromToResponse> call, Throwable t) {
+                Toast.makeText(mapContext, "Failed, try again",
+                        Toast.LENGTH_SHORT).show();
+
+                Log.d(TAG, "Bus journey failure " + call.request().url().toString());
+                Log.d(TAG, " " + t.toString());
+            }
+        });
+
+
+    }
+
+    public void getBusJourneyLegs(String apiKey, String appId){
+        Log.d(TAG, "GETTING JOURNEYT LEG");
+
+        ArrayList<String> a = new ArrayList<>();
+        a.add("010");
+
+
+
+        for(int i =0;i<journey.length;i++){
+            Legs [] legs = journey[i].getLegs();
+            for(int j =1;j<legs.length;j++){
+                String from = legs[(j-1)].getArrivalPoint().getLatLng();
+                String to = legs[j].getArrivalPoint().getLatLng();
+                //Log.d(TAG, "DE " + from + " -> " + to);
+                wayPoint.add(from);
+                wayPoint.add(to);
+            }
+            evaulatePath(apiKey, appId);
+
+            Log.d(TAG, "-----------------Seperator------------------------ ");
+
+        }
+
+//        for(int i =0;i<journey.length;i++){
+//            Log.d(TAG, " I " + i + " "  +journey.length);
+//            Legs [] legs = journey[i].getLegs();
+//            if(i == 0){
+//                Log.d(TAG, "a1");
+//                addingPaths(legs, 1);
+//            }
+//            else if(i == 1){
+//                Log.d(TAG, "a2");
+//
+//                addingPaths(legs, 2);
+//            }
+//            else if(i == 2){
+//                Log.d(TAG, "a3");
+//
+//                addingPaths(legs, 3);
+//            }
+//            else if(i == 3){
+//                Log.d(TAG, "a4");
+//
+//                addingPaths(legs, 4);
+//            }
+//        }
+
+//        Legs [] legs;
+//        for(int i =0;i<journey.length-1;i++){
+//            legs = journey[i].getLegs();
+//            Log.d(TAG, "II  " + i + " " + legs.length);
+//            //Would use legs.length but limiting to first option
+//            //for(int j =0;j<1;j++){
+//                String from = legs[0].getArrivalPoint().getLatLng();
+//                String to = legs[(1)].getArrivalPoint().getLatLng();
+//                String lo = legs[(journey.length-1)].getArrivalPoint().getLatLng();
+//                getBusJourneys(apiKey, appId, from, to);
+//                getBusJourneys(apiKey, appId, to, lo);
+//                Log.d(TAG, "FROM " + from + "    to    " + to);
+//           //}
+//            Log.d(TAG, "COMEPLTE 1");
+//
+//
+//            Log.d(TAG, "------------------------DIFFEREMT LEG-------------------------- ");
+//        }
+
+    }
+
+    public void evaulatePath(String appId, String apiKey){
+
+        Log.d(TAG, "EVA " + wayPoint.toString());
+        Log.d(TAG, "length " + wayPoint.size());
+
+        for(int i =1;i<wayPoint.size()-1;i++){
+            String from =wayPoint.get((i-1));
+            String to = wayPoint.get(i);
+            getBusJourneys(appId, apiKey, from , to);
+        }
+    }
+
+    public void getBusJourneys(String appId, String apiKey, final String from, final String to) {
+
+
+        Call<JourneyFromToResponse> busJourney = tflCall.getJourney(from, to, appId, apiKey);
+    //        Log.d(TAG, " Getting response from Bus journey 2 ");
+
+        busJourney.enqueue(new Callback<JourneyFromToResponse>() {
+            @Override
+            public void onResponse(Call<JourneyFromToResponse> call, Response<JourneyFromToResponse> response) {
+                Log.d(TAG, " Getting response from Bus journey 2 " + call.request().url().toString());
+                //  Log.d(TAG, "FROM " + from + " to " + to);
+                JourneyFromToResponse a = response.body();
+                Journeys [] j = a.getJourneys();
+                for(int i =0;i<j.length;i++){
+                    Log.d(TAG, " journey " + j[i].getDuration());
+
+                }
             }
 
             @Override
@@ -282,13 +409,14 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
 
     public void getBusTicketPrice(String appId, String apiKey){
         String stopPointFrom = "940GZZLUWYP";
-        String stopPointTo = "910GTWCKNHM";
+        String stopPointTo = "940GZZLUEGW";
         Call<List<TicketPrice>> getTickTock = tflCall.getTicketPrices(stopPointFrom, stopPointTo, appId, apiKey );
         Log.d(TAG, " Getting ticket response" );
 
         getTickTock.enqueue(new Callback<List<TicketPrice>>() {
             @Override
             public void onResponse(Call<List<TicketPrice>> call, Response<List<TicketPrice>> response) {
+                Log.d(TAG, "Bus ticket price "+call.request().url().toString());
                 List<TicketPrice> rb = response.body();
                 double totalCost;
                 String ticketType;
@@ -302,11 +430,12 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
                          totalCost = Double.valueOf(ticketsAvailable[j].getCost());
                          ticketType = ticketsAvailable[j].getTicketTime().getType();
                         SelectingRoute selectingRoute = new SelectingRoute(journey);
-                        lo = selectingRoute.getCheapestRoute(totalCost, ticketType).getLegs();
+                        selectingRoute.addRoutePrice(totalCost);
+                        //lo = selectingRoute.getCheapestRoute(totalCost, ticketType).getLegs();
                     }
                 }
-                    mMap.clear();
-                addingPaths(lo, 1);
+//                    mMap.clear();
+//                addingPaths(lo, 1);
 
 
             }
@@ -319,42 +448,50 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
         });
 
     }
-    public void drawPathLine(JourneyFromToResponse jftr) {
-
-        final LatLng fromWembley = new LatLng(51.562075, -0.280665);
-        final LatLng toEdgaware = new LatLng(51.610310, -0.267138);
-
-
+    public void drawPathLine() {
         MainActivity.mMap.clear();
-            DrawMarker.getInstance(mapContext).draw(MainActivity.mMap, fromWembley, R.drawable.pin_start_24dp );
-            DrawMarker.getInstance(mapContext).draw(MainActivity.mMap, toEdgaware, R.drawable.pin_end_24dp);
+    //Example below
 
 
-        journey = jftr.getJourneys();
+       // final LatLng fromWembley = MainActivity.travelFrom;
+       // final LatLng toEdgaware = MainActivity.travelTo;
 
-        for(int i =0;i<3;i++){
-            Log.d(TAG, " I " + i + " "  +journey.length);
+
+
+        for(int i =0;i<journey.length;i++){
+           // Log.d(TAG, " I " + i + " "  +journey.length);
             Legs [] legs = journey[i].getLegs();
-            if(i ==0){
-                Log.d(TAG, "a1");
+            if(i == 0){
+                //Log.d(TAG, "a1");
                 addingPaths(legs, 1);
             }
-//            else if(i % 4 == 1){
-//                Log.d(TAG, "a2");
-//
-//                addingPaths(legs, 2);
-//            }
-//            else if(i %4 == 2){
-//                Log.d(TAG, "a3");
-//
-//                addingPaths(legs, 2);
-//            }
-//            else if(i %4 == 3){
-//                Log.d(TAG, "a4");
-//
-//                addingPaths(legs, 2);
-//            }
+            else if(i == 1){
+               // Log.d(TAG, "a2");
+
+                addingPaths(legs, 2);
+            }
+            else if(i == 2){
+               // Log.d(TAG, "a3");
+
+                addingPaths(legs, 3);
+            }
+            else if(i == 3){
+                //Log.d(TAG, "a4");
+
+                addingPaths(legs, 4);
+            }
         }
+
+
+//        Legs [] legs = journey[0].getLegs();
+//        Legs [] legs1 = journey[1].getLegs();
+//        Legs [] legs2 = journey[2].getLegs();
+//        Legs [] legs3 = journey[3].getLegs();
+//
+//        addingPaths(legs, 1);
+//        addingPaths(legs1, 2);
+//        addingPaths(legs2, 3);
+//        addingPaths(legs3, 4);
 
         CameraUpdate location = CameraUpdateFactory.newLatLngZoom(new LatLng(51.564072184349996, -0.27827641759000005), 14);
         MainActivity.mMap.animateCamera(location);
@@ -362,27 +499,27 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
         //                IconGenerator iconGenerator = new IconGenerator(this);
 //                addIcon(iconGenerator, "Disruption", new LatLng(51.564072184349996, -0.27827641759000005));
 //
-//                MapRipple mapRipple = new MapRipple(mMap, new LatLng(51.564072184349996, -0.27827641759000005), mapContext);
-//                mapRipple.withNumberOfRipples(2);
-//                mapRipple.withDistance(0.1);
-//                mapRipple.withFillColor(Color.BLUE);
-//                mapRipple.withTransparency(0.5f);
-//                mapRipple.withRippleDuration(5000) ;   //12000ms
-//
-//
-//                if(mapRipple.isAnimationRunning()){
-//}
-//                mapRipple.startRippleMapAnimation();
+        Disruption a = new Disruption(new LatLng(51.564072184349996, -0.27827641759000005));
+        a.drawDisruption();
 
 
-     //   addingPaths(legs, 1);
-//        addingPaths(legs1, 2);
-//        addingPaths(legs2, 3);
-//        addingPaths(legs3, 4);
 
 
     }
+
+
+
+
     public void addingPaths(Legs[] legs, int colourChoice){
+
+//        final LatLng fromWembley = MainActivity.travelFrom;
+//        final LatLng toEdgware = MainActivity.travelTo;
+
+
+        DrawMarker.getInstance(mapContext).draw(MainActivity.mMap, from, R.drawable.pin_start_24dp );
+        DrawMarker.getInstance(mapContext).draw(MainActivity.mMap, to, R.drawable.pin_end_24dp);
+
+
         List<PatternItem> patternWalk = Arrays.<PatternItem>asList(new Dot());
         List<PatternItem> patternTube = Arrays.<PatternItem>asList(new Dot(), new Gap(20), new Dash(30), new Gap(20));
         List<PatternItem> patternOverground = Arrays.<PatternItem>asList(new Dot(), new Gap(20), new Dash(30), new Gap(20));
@@ -424,7 +561,7 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
             break;
             case 2: polylineOptions.color(Color.BLUE);
             break;
-            case 3: polylineOptions.color(Color.argb(1,255,89,0));
+            case 3: polylineOptions.color(Color.RED);
             break;
             case 4: polylineOptions.color(Color.GREEN);
                 break;
@@ -446,7 +583,7 @@ public class TflCalls extends FragmentActivity implements GoogleMap.OnPolylineCl
                 break;
             case 2: polylineOptions.color(Color.BLUE);
                 break;
-            case 3: polylineOptions.color(Color.argb(1,255,89,0));
+            case 3: polylineOptions.color(Color.RED);
                 break;
             case 4: polylineOptions.color(Color.GREEN);
                 break;
@@ -573,7 +710,6 @@ public void drawLine(OrderedLineRoutes [] orderedLineRoutes) {
         //LatLng middlePos = com.example.frank.busmap.LatLngUtils.midPoint(latLng.get((i-1)).latitude, latLng.get((i-1)).longitude, latLng.get(i).latitude, latLng.get(i).longitude);
         //DrawMarker.getInstance(mapContext).draw(mMap, middlePos, R.drawable.up_arrow_24dp, stopName[(i-1)], rotationDegrees);
 
-
         //Drawing markers
         if (i == 1) {
             DrawMarker.getInstance(mapContext).draw(MainActivity.mMap, MainActivity.latLng.get(0), R.drawable.pin_start_24dp, stopName[(i - 1)] , MainActivity.direction + " towards" + orderedLineRoutes[0].getName() );
@@ -586,6 +722,14 @@ public void drawLine(OrderedLineRoutes [] orderedLineRoutes) {
 
 
     }
+
+    //NEEDS TO BE ABLE TO SIMULTANEOUSLY LOOP THROUGH ARRAY
+    DrawMarker.getInstance(mapContext).animateMarkerToGB(mMap, R.drawable.bus_24dp,  MainActivity.latLng.get(0),MainActivity.latLng.get(1), new LatLngInterpolator.Linear(), 15000);
+    DrawMarker.getInstance(mapContext).animateMarkerToGB(mMap, R.drawable.bus_24dp,  MainActivity.latLng.get(MainActivity.latLng.size()/2),MainActivity.latLng.get((MainActivity.latLng.size()/5)), new LatLngInterpolator.Linear(), 20000);
+    DrawMarker.getInstance(mapContext).animateMarkerToGB(mMap, R.drawable.bus_24dp,  MainActivity.latLng.get(6),MainActivity.latLng.get(7), new LatLngInterpolator.Linear(), 15000);
+    DrawMarker.getInstance(mapContext).animateMarkerToGB(mMap, R.drawable.bus_24dp,  MainActivity.latLng.get(MainActivity.latLng.size()-1),MainActivity.latLng.get((MainActivity.latLng.size())-10), new LatLngInterpolator.Linear(), 30000);
+
+
 
 }
 

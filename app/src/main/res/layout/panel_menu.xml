@@ -45,7 +45,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/busNumber"
         android:maxLines="1"
-        android:maxLength="20"
         android:ellipsize="end"/>
 
 
@@ -65,7 +64,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/places_autocomplete_from"
         android:maxLines="1"
-        android:maxLength="20"
         android:ellipsize="end"/>
 
 

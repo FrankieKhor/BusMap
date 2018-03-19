@@ -60,6 +60,11 @@ public class ArrivalPoint {
         return lat;
     }
 
+    public String getLatLng ()
+    {
+        return lat + ", " + lon;
+    }
+
     public void setLat (String lat)
     {
         this.lat = lat;

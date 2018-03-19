@@ -9,11 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.location.Address;
-import android.location.Geocoder;
-import android.location.Location;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.constraint.ConstraintLayout;
@@ -41,6 +37,7 @@ import android.widget.Toast;
 import com.codemybrainsout.placesearch.PlaceSearchDialog;
 import com.example.frank.busmap.CustomInfoWindow.MapWrapperLayout;
 import com.example.frank.busmap.CustomInfoWindow.OnInfoWindowElemTouchListener;
+import com.example.frank.busmap.GoogleMap.DownloadTask;
 import com.example.frank.busmap.GoogleMap.GoogleMapPermission;
 import com.example.frank.busmap.GoogleMap.StreetViewPanorama;
 import com.example.frank.busmap.Pojo.getBusArrival.BusArrivalResponse;
@@ -51,7 +48,6 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.GeoDataClient;
 import com.google.android.gms.location.places.PlaceDetectionClient;
 import com.google.android.gms.location.places.Places;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -60,7 +56,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.maps.android.ui.IconGenerator;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
@@ -69,20 +64,12 @@ import com.karumi.dexter.listener.DexterError;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.PermissionRequestErrorListener;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
-import com.seatgeek.placesautocomplete.OnPlaceSelectedListener;
-import com.seatgeek.placesautocomplete.PlacesAutocompleteTextView;
-import com.seatgeek.placesautocomplete.model.Place;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
+import okhttp3.Route;
 import retrofit2.Retrofit;
 
 public class MainActivity extends FragmentActivity implements
@@ -125,7 +112,8 @@ public class MainActivity extends FragmentActivity implements
     static TextInputEditText locationFrom ;
     static TextInputEditText locationTo ;
     private FusedLocationProviderClient mFusedLocationClient;
-
+    public static LatLng travelFrom = new LatLng(0,0);
+    public static LatLng travelTo = new LatLng(0,0);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -253,14 +241,36 @@ public class MainActivity extends FragmentActivity implements
                 return false;
             }
         });
+        Log.d(TAG, "OPPPPP");
+
+       // ArrayList<Double> w = CS2004.ReadNumberFile("1000 Primes.txt");
+
+        int [] op = {0,1,1,2,2,0,1,0,0};
+        ArrayList<Integer> w = new ArrayList<>();
+        for(int q:op){
+            w.add(q);
+        }
+
+//        FitnessCalc.addPathValue("0111");
+//
+//        // Create an initial population
+//        Population myPop = new Population(4, true);
+//
+//        // Evolve our population until we reach an optimum solution
+//        int generationCount = 0;
+//        while (myPop.getFittest().getFitness() < FitnessCalc.getMaxFitness()) {
+//            generationCount++;
+//            System.out.println("Generation: " + generationCount + " Fittest: " + myPop.getFittest().getFitness());
+//            myPop = Algorithm.evolvePopulation(myPop);
+//        }
+//        Log.d(TAG, "Solution found!");
+//        Log.d(TAG,"Generation: " + generationCount);
+//        Log.d(TAG,"Genes:");
+//        Log.d(TAG, "Fittest solution " +myPop.getFittest());
+
 
 
     }
-
-
-
-
-
 
     public void showPlaceDialog(final TextInputEditText textInputEditText){
 
@@ -278,7 +288,7 @@ public class MainActivity extends FragmentActivity implements
                     public void locationName(String locationName) {
                         //set textview or edittext
                         textInputEditText.setText(locationName);
-                        nootNUll();
+                        checkAutoCompTextView();
 
                     }
                 })
@@ -287,15 +297,30 @@ public class MainActivity extends FragmentActivity implements
 
     }
 
-    public void nootNUll(){
-
+    public void checkAutoCompTextView(){
         if(!locationFrom.getText().toString().equals("") && !locationTo.getText().toString().equals("")){
             Log.d(TAG, "SUCE");
+
+            String [] address = new String[2];
+            address[0] = locationFrom.getText().toString();
+            address[1] = locationTo.getText().toString();
+
             TextView from = (TextView)findViewById(R.id.fromLocation);
             from.setText(locationFrom.getText().toString());
 
             TextView to = (TextView)findViewById(R.id.toLocation);
             to.setText(locationTo.getText().toString());
+            Log.d(TAG, "1 " + address[0]);
+            Log.d(TAG, "1 " + address[1]);
+
+            // String address = "3-41+Wykeham+Hill,+Wembley+HA9";
+            for(String app: address){
+                String url = getGeocode(app);
+                Log.d(TAG, "URL " + url);
+                DownloadTask downloadTask = new DownloadTask();
+                downloadTask.execute(url);
+            }
+
 
         }else if(locationFrom.getText().toString().equals("") ){
             Log.d(TAG, "from not null");
@@ -347,6 +372,7 @@ public class MainActivity extends FragmentActivity implements
                 layoutBusDirection.setVisibility(View.VISIBLE);
                 sup.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
                 sup.setPanelHeight(0);
+
                 break;
 
             case R.id.fab_path:
@@ -357,34 +383,53 @@ public class MainActivity extends FragmentActivity implements
 
             case R.id.btnSubmit:
                 String[] some_array = getResources().getStringArray(R.array.travel_choice);
-
+                SelectingRoute sr = new SelectingRoute(TflCalls.journey);
+                //optimal
                 if(spinner.getSelectedItem().toString().equals(some_array[1])){
-                    Log.d(TAG, "1");
+                    Log.d(TAG, "OPTIMAL");
+                    TflCalls tflCalls = new TflCalls();
+                    Legs [] ab = sr.getTime(1).getLegs();
+                    mMap.clear();
+                    tflCalls.addingPaths(ab, 1);
+                    TextView textView = (TextView) findViewById(R.id.predictionText);
+                    textView.setText("Duration: \n" +
+                            "Modes: \n" +
+                            " ");
                 }
                 else if(spinner.getSelectedItem().toString().equals(some_array[2])) {
-                    Log.d(TAG, "2");
-                    SelectingRoute sr = new SelectingRoute(TflCalls.journey);
-                    Legs [] ab = sr.getQuickestRoute().getLegs();
-                    TflCalls po = new TflCalls();
+                    Log.d(TAG, "QUICKEST");
+                    TflCalls tflCalls = new TflCalls();
+                    Legs [] ab = sr.getTime(2).getLegs();
                     mMap.clear();
-                    po.addingPaths(ab, 1);
-
-                    Log.d(TAG, "SMAKKKKEESS " + sr.getQuickestRoute().getDuration());
+                    tflCalls.addingPaths(ab, 2);
+                    TextView textView = (TextView) findViewById(R.id.predictionText);
+                    textView.setText("Duration: \n" +
+                            "Modes: \n" +
+                            " ");
                 }
                 else if(spinner.getSelectedItem().toString().equals(some_array[3])) {
-                    Log.d(TAG, "3");
-                    API_CALL_CHOICE = 3;
-                    connectAndGetApiData();
+                    Log.d(TAG, "COST");
+                    TflCalls tflCalls = new TflCalls();
+                    Legs [] ab = sr.getTime(3).getLegs();
+                    mMap.clear();
+                    tflCalls.addingPaths(ab, 3);
+                    TextView textView = (TextView) findViewById(R.id.predictionText);
+                    textView.setText("Duration: \n" +
+                            "Modes: \n" +
+                            " ");
                 }
                 else if(spinner.getSelectedItem().toString().equals(some_array[4])) {
-                    Log.d(TAG, "4");
-                    SelectingRoute sr = new SelectingRoute(TflCalls.journey);
-                    sr.getLeastVehicleChange();
-
+                    Log.d(TAG, "VEHICLE");
+                    TflCalls tflCalls = new TflCalls();
+                    Legs [] ab = sr.getTime(4).getLegs();
+                    mMap.clear();
+                    tflCalls.addingPaths(ab, 4);
+                    TextView textView = (TextView) findViewById(R.id.predictionText);
+                    textView.setText("Duration: \n" +
+                            "Modes: \n" +
+                            " ");
                 }
                 sup.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-
-//                SelectingRoute p = new SelectingRoute();
                 break;
         }
     }
@@ -444,10 +489,6 @@ public class MainActivity extends FragmentActivity implements
                 .check();
     }
 
-    public void updateLocationUI(GoogleMap map)
-    {}
-
-
     private void showSettingsDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Need Permissions");
@@ -501,12 +542,12 @@ public class MainActivity extends FragmentActivity implements
 
 
     public void connectAndGetApiData() {
-        TflCalls a = new TflCalls();
-        a.createRetrofit();
-        a.createRetrofitClass();
+        TflCalls tflCalls = new TflCalls();
+        tflCalls.createRetrofit();
+        tflCalls.createRetrofitClass();
         String appId = getString(R.string.tfl_app_id);
         String apiKey = getString(R.string.tfl_key);
-        a.choice(API_CALL_CHOICE, appId, apiKey);
+        tflCalls.choice(API_CALL_CHOICE, appId, apiKey);
 //
 //        tflCall.getAllBusStops(lineID, direction, appId, apiKey)
 //                .observeOn(AndroidSchedulers.mainThread())
@@ -555,25 +596,6 @@ public class MainActivity extends FragmentActivity implements
 
     }
 
-
-
-
-            private class DownloadTask extends AsyncTask<String, Void, String> {
-
-        @Override
-        protected String doInBackground(String... url) {
-
-            String data = "";
-
-            try {
-                data = downloadUrl(url[0]);
-            } catch (Exception e) {
-                Log.d("Background Task", e.toString());
-            }
-            return data;
-        }
-
-    }
 
 
     /**
@@ -640,7 +662,24 @@ public class MainActivity extends FragmentActivity implements
     }
 
 
-    private String getDirectionsUrl(LatLng origin, LatLng dest) {
+
+    //Convert to latlng
+    private String getGeocode(String address) {
+
+        // Building the parameters to the web service
+
+        String parameters = "address=" + address;
+        parameters = parameters.replaceAll(" ", "+");
+
+        // Output format
+        String output = "json";
+        String apiKey = getString(R.string.google_maps_key);
+        String url  = "https://maps.googleapis.com/maps/api/geocode/" + output +"?" + parameters + "&key=" + apiKey;
+
+        return url;
+    }
+
+    private String getReverseGeocode(LatLng origin, LatLng dest) {
 
         // Origin of route
         String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
@@ -652,58 +691,17 @@ public class MainActivity extends FragmentActivity implements
         String sensor = "sensor=false";
         String mode = "mode=TRANSIT";
         // Building the parameters to the web service
-
-        String parameters = str_origin + "&" + str_dest + "&" + sensor + "&" + mode;
+        //latng or address
+        String parameters = "latlng";
         // Output format
         String output = "json";
 
-        // Building the url to the web service
-        //String url = "https://maps.googleapis.com/maps/api/directions/" + outputFormat + "?" + parameters;
-        //String url = "https://maps.googleapis.com/maps/api/directions/json?origin=place_id:ChIJ685WIFYViEgRHlHvBbiD5nE&destination=place_id:ChIJA01I-8YVhkgRGJb0fW4UX7Y&key=AIzaSyD8PhziTf5drvKOLU_bQYnkfLjSHkbZDNM";
 
-        //String url = "https://maps.googleapis.com/maps/api/directions/json?origin=place_id:ChIJ685WIFYViEgRHlHvBbiD5nE&destination=place_id:ChIJA01I-8YVhkgRGJb0fW4UX7Y&key=AIzaSyD8PhziTf5drvKOLU_bQYnkfLjSHkbZDNM";
-        String url  = "https://maps.googleapis.com/maps/api/directions/json?" + parameters;
+        String url  = "https://maps.googleapis.com/maps/api/geocode/json?" + parameters;
 
         return url;
     }
 
-    /**
-     * A method to download json data from url
-     */
-    private String downloadUrl(String strUrl) throws IOException {
-        String data = "";
-        InputStream iStream = null;
-        HttpURLConnection urlConnection = null;
-        try {
-            URL url = new URL(strUrl);
-
-            urlConnection = (HttpURLConnection) url.openConnection();
-
-            urlConnection.connect();
-
-            iStream = urlConnection.getInputStream();
-
-            BufferedReader br = new BufferedReader(new InputStreamReader(iStream));
-
-            StringBuffer sb = new StringBuffer();
-
-            String line = "";
-            while ((line = br.readLine()) != null) {
-                sb.append(line);
-            }
-
-            data = sb.toString();
-
-            br.close();
-
-        } catch (Exception e) {
-            Log.d("Exception", e.toString());
-        } finally {
-            iStream.close();
-            urlConnection.disconnect();
-        }
-        return data;
-    }
 
 
 }
