@@ -69,7 +69,6 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import java.util.ArrayList;
 import java.util.List;
 
-import okhttp3.Route;
 import retrofit2.Retrofit;
 
 public class MainActivity extends FragmentActivity implements
@@ -331,17 +330,13 @@ public class MainActivity extends FragmentActivity implements
 
         Log.d(TAG, "loc "+locationFrom.getText() + " " + locationTo.getText());
 
-
-    }
-
-
-    public static Context getMapContext(){
-        return MainActivity.mapContext ;
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        TflCalls tflCalls = new TflCalls(mapContext);
+        tflCalls.addDataFromMain(mMap);
     }
 
     @Override
@@ -387,7 +382,7 @@ public class MainActivity extends FragmentActivity implements
                 //optimal
                 if(spinner.getSelectedItem().toString().equals(some_array[1])){
                     Log.d(TAG, "OPTIMAL");
-                    TflCalls tflCalls = new TflCalls();
+                    TflCalls tflCalls = new TflCalls(mapContext);
                     Legs [] ab = sr.getTime(1).getLegs();
                     mMap.clear();
                     tflCalls.addingPaths(ab, 1);
@@ -398,7 +393,7 @@ public class MainActivity extends FragmentActivity implements
                 }
                 else if(spinner.getSelectedItem().toString().equals(some_array[2])) {
                     Log.d(TAG, "QUICKEST");
-                    TflCalls tflCalls = new TflCalls();
+                    TflCalls tflCalls = new TflCalls(mapContext);
                     Legs [] ab = sr.getTime(2).getLegs();
                     mMap.clear();
                     tflCalls.addingPaths(ab, 2);
@@ -409,7 +404,7 @@ public class MainActivity extends FragmentActivity implements
                 }
                 else if(spinner.getSelectedItem().toString().equals(some_array[3])) {
                     Log.d(TAG, "COST");
-                    TflCalls tflCalls = new TflCalls();
+                    TflCalls tflCalls = new TflCalls(mapContext);
                     Legs [] ab = sr.getTime(3).getLegs();
                     mMap.clear();
                     tflCalls.addingPaths(ab, 3);
@@ -420,7 +415,7 @@ public class MainActivity extends FragmentActivity implements
                 }
                 else if(spinner.getSelectedItem().toString().equals(some_array[4])) {
                     Log.d(TAG, "VEHICLE");
-                    TflCalls tflCalls = new TflCalls();
+                    TflCalls tflCalls = new TflCalls(mapContext);
                     Legs [] ab = sr.getTime(4).getLegs();
                     mMap.clear();
                     tflCalls.addingPaths(ab, 4);
@@ -517,34 +512,11 @@ public class MainActivity extends FragmentActivity implements
         startActivityForResult(intent, 101);
     }
 
-
-
-    //NOT NEEDED JUST LOGGING PURPOSE
-    final FloatingActionButton.OnVisibilityChangedListener addVisibilityChanged = new FloatingActionButton.OnVisibilityChangedListener() {
-        public void onShown(final FloatingActionButton fab) {
-            super.onShown(fab);
-            Log.d(TAG, "Visibility showing");
-        }
-
-        public void onHidden(final FloatingActionButton fab) {
-            super.onHidden(fab);
-            super.onHidden(fab);
-            Log.d(TAG, "Visibility hidden");
-        }
-    };
-
-
     //Will use RxJava for multiple Api request
-
-
-
-
-
-
     public void connectAndGetApiData() {
-        TflCalls tflCalls = new TflCalls();
+
+        TflCalls tflCalls = new TflCalls(mapContext);
         tflCalls.createRetrofit();
-        tflCalls.createRetrofitClass();
         String appId = getString(R.string.tfl_app_id);
         String apiKey = getString(R.string.tfl_key);
         tflCalls.choice(API_CALL_CHOICE, appId, apiKey);
@@ -558,49 +530,8 @@ public class MainActivity extends FragmentActivity implements
 
 //        tflCall.getAllBusStops(lineID, direction, okhttp3.Credentials.basic(appId, apiKey)
 //        .subsc);
-
-
-
-
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-    public void getStationsBetween(){
-        Log.d(TAG, "MOO " + napId.length);
-
-        String towardsNaptan = "";
-        String previousNaptan = "";
-        double distance ;
-        for(int i =1;i<=(napId.length-1);i++){
-            Log.d(TAG, " LAT " + latLng.get(i).toString());
-
-            String op = napId[i];
-           // Log.d(TAG, "MATCH " + napId[i-1] + " previous " + napId[i]);
-            if(napId[(i-1)].equals(op)){
-
-                previousNaptan = napId[i];
-               // distance = SphericalUtil.computeDistanceBetween();
-            }
-        }
-
-    }
-
-
-
-    /**
-     * A class to parse the Google Places in JSON format
-     */
 
     public void createCustomInfoWindow(){
         final MapWrapperLayout mapWrapperLayout = (MapWrapperLayout)findViewById(R.id.map_relative_layout);
@@ -643,9 +574,6 @@ public class MainActivity extends FragmentActivity implements
                 return infoWindow;
             }
         });
-
-        //Setting a location and moving camera
-        //getDeviceLocation();
     }
     public static int getPixelsFromDp(Context context, float dp) {
         final float scale = context.getResources().getDisplayMetrics().density;
@@ -661,32 +589,23 @@ public class MainActivity extends FragmentActivity implements
         return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
-
-
     //Convert to latlng
     private String getGeocode(String address) {
-
-        // Building the parameters to the web service
-
         String parameters = "address=" + address;
         parameters = parameters.replaceAll(" ", "+");
-
         // Output format
         String output = "json";
         String apiKey = getString(R.string.google_maps_key);
         String url  = "https://maps.googleapis.com/maps/api/geocode/" + output +"?" + parameters + "&key=" + apiKey;
-
         return url;
     }
 
+    //Need to work on it, fairly easy but haven't had use for it
     private String getReverseGeocode(LatLng origin, LatLng dest) {
-
         // Origin of route
         String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
-
         // Destination of route
         String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
-
         // Sensor enabled
         String sensor = "sensor=false";
         String mode = "mode=TRANSIT";
@@ -695,9 +614,7 @@ public class MainActivity extends FragmentActivity implements
         String parameters = "latlng";
         // Output format
         String output = "json";
-
-
-        String url  = "https://maps.googleapis.com/maps/api/geocode/json?" + parameters;
+        String url  = "https://maps.googleapis.com/maps/api/geocode/" + output +"?" + parameters;
 
         return url;
     }

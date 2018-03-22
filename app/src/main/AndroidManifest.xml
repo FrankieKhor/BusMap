@@ -33,6 +33,8 @@
         <service
             android:name=".FetchAddressIntentService"
             android:exported="false"/>
+        <service android:name=".Pojo.Rest.BackgroundService"
+            android:exported="false"/>
 
     </application>
 

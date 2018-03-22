@@ -9,13 +9,13 @@ import java.util.Random;
 /**
  * Created by frank on 18/03/2018.
  */
-public class Initlisation {
-    static String TAG = "Initlisation";
+public class GaInitalisation {
+    static String TAG = GaInitalisation.class.getName();
     List<Stops> fruitsList = new ArrayList<Stops>();
     List<Stops> fruitsList2 = new ArrayList<Stops>();
     List<Stops> fruitsList3 = new ArrayList<Stops>();
 
-    public Initlisation(List<Stops> path1, List<Stops> path2, List<Stops> path3) {
+    public GaInitalisation(List<Stops> path1, List<Stops> path2, List<Stops> path3) {
 
         fruitsList.add(new Stops("00", 1, 2, 0));
         fruitsList.add(new Stops("01", 5, 7, 0));
