@@ -10,9 +10,6 @@ import android.widget.RelativeLayout;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
 
-/**
- * Created by frank on 06/03/2018.
- */
 //Copied from http://www.androidlearningtutorials.com/mgcinfowindow_btnclick.php
 public class MapWrapperLayout extends RelativeLayout {
     /**

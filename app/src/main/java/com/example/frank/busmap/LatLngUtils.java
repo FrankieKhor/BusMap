@@ -2,9 +2,8 @@ package com.example.frank.busmap;
 
 import com.google.android.gms.maps.model.LatLng;
 
-/**
- * Created by frank on 01/03/2018.
- */
+//Will be used to used for real time movement of buses
+
 public final class LatLngUtils {
     private static final String TAG = LatLngUtils.class.getSimpleName();
 

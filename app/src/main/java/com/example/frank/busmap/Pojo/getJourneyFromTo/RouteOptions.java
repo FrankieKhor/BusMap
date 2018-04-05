@@ -1,17 +1,21 @@
 package com.example.frank.busmap.Pojo.getJourneyFromTo;
 
+
+import org.parceler.Parcel;
+
 /**
  * Created by frank on 01/03/2018.
  */
-
+@Parcel
 public class RouteOptions {
-    private LineIdentifier lineIdentifier;
 
-    private String[] directions;
+    LineIdentifier lineIdentifier;
+    String[] directions;
+    String name;
+    String $type;
 
-    private String name;
-
-    private String $type;
+    public RouteOptions() {
+    }
 
     public LineIdentifier getLineIdentifier ()
     {

@@ -1,23 +1,24 @@
 package com.example.frank.busmap.Pojo.getJourneyFromTo;
 
-import com.example.frank.busmap.Pojo.getAllBusStops.Crowding;
+import org.parceler.Parcel;
 
 /**
  * Created by frank on 01/03/2018.
  */
-
+@Parcel
 public class LineIdentifier {
-    private String id;
+     String id;
+     Crowding crowding;
 
-    private Crowding crowding;
+     String name;
 
-    private String name;
+     String $type;
 
-    private String $type;
+     String type;
 
-    private String type;
-
-    private String uri;
+     String uri;
+    public LineIdentifier() {
+    }
 
     public String getId ()
     {

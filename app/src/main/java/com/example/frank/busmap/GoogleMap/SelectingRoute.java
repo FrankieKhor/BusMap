@@ -1,7 +1,6 @@
-package com.example.frank.busmap;
+package com.example.frank.busmap.GoogleMap;
 
 import android.util.Log;
-import android.widget.TextView;
 
 import com.example.frank.busmap.Pojo.getJourneyFromTo.Journeys;
 import com.example.frank.busmap.Pojo.getJourneyFromTo.Legs;
@@ -9,17 +8,13 @@ import com.example.frank.busmap.Pojo.getJourneyFromTo.Legs;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by frank on 05/03/2018.
- */
-
 public class SelectingRoute {
     private static final String TAG = SelectingRoute.class.getName();
 
     int duration;
     static double routePrice;
-    Journeys [] journey;
-    List<Double>ticketPrice = new ArrayList<>();
+    Journeys[] journey;
+    List<Double> ticketPrice = new ArrayList<>();
     public SelectingRoute(Journeys []journey){
         this.journey = journey;
     }
@@ -27,8 +22,8 @@ public class SelectingRoute {
     public double getWeightedSum(int num, double [] weight){
         double value[] = new double[3];
         value[0] = getRouteTime(num);
-        value[1] = getRoutePrice(this.routePrice, num);
-        value[2] = getRouteVehicleChange(num);
+        value[1] = getRoutePrice(this.routePrice, num) ;
+        value[2] = getRouteVehicleChange(num) ;
         Log.d(TAG, "word " + value[0] + " " + value[1] +" " + value[2] );
 
         double weightedSum;
@@ -100,9 +95,9 @@ public class SelectingRoute {
         //Log.d(TAG, "TIME " + Integer.valueOf(journey[num].getDuration()));
 
         //Adding fake delay
-//        if(num == 3){
-//            return Integer.valueOf(journey[num].getDuration())-100;
-//        }
+        if(num == 0){
+            return Integer.valueOf(journey[num].getDuration())-50;
+        }
         return Integer.valueOf(journey[num].getDuration());
     }
 
@@ -113,30 +108,30 @@ public class SelectingRoute {
 
 
     public double getRoutePrice(double route, int num){
-       // Log.d(TAG, "GETTING ROUTE");
+        // Log.d(TAG, "GETTING ROUTE");
         final double dayLimit = 12.50;
         final double BUS_PRICE = 1.50;
         int BusCount = 0;
         double totalPrice = 0;
-        //This value is used to make sure it has at least one public transport is used(Needs to work on it)
+        //This value is used to make sure it has at least one public transport is used(Needs to createWaypoints on it)
         int count = 0;
-            Legs [] legs = journey[num].getLegs();
-            for(int i =0;i<legs.length;i++){
-                if(legs[i].getModeName().equals("bus")){
-                    BusCount +=1;
-                    Log.d(TAG, "b  " +BusCount);
-                    count++;
-                } else if(legs[i].getModeName().equals("tube") || legs[i].getModeName().equals("overground")){
-                    count++;
-                }
-                else{
-                    //bool = false;
-                }
-
+        Legs [] legs = journey[num].getLegs();
+        for(int i =0;i<legs.length;i++){
+            if(legs[i].getModeName().equals("bus")){
+                BusCount +=1;
+                Log.d(TAG, "b  " +BusCount);
+                count++;
+            } else if(legs[i].getModeName().equals("tube") || legs[i].getModeName().equals("overground")){
+                count++;
             }
-            if(count != 0){
-                totalPrice = route+(BusCount*BUS_PRICE);
-           }
+            else{
+                //bool = false;
+            }
+
+        }
+        if(count != 0){
+            totalPrice = route+(BusCount*BUS_PRICE);
+        }
         Log.d(TAG, "Price " + totalPrice + " route " + this.routePrice);
         return totalPrice;
     }
@@ -147,12 +142,12 @@ public class SelectingRoute {
         Legs[] legs = journey[num].getLegs();
         Log.d(TAG, "LENGTH " + legs.length);
         for(int i = 0;i<legs.length;i++){
-                if(legs[i].getModeName().equals("bus") || legs[i].getModeName().equals("tube") ||legs[i].getModeName().equals("overground")){
-                    transitUsed ++;
-                }else{
-                   // Log.d(TAG, "NAME ELSE " + i + " " + legs[i].getModeName());
+            if(legs[i].getModeName().equals("bus") || legs[i].getModeName().equals("tube") ||legs[i].getModeName().equals("overground")){
+                transitUsed ++;
+            }else{
+                // Log.d(TAG, "NAME ELSE " + i + " " + legs[i].getModeName());
 
-                }
+            }
             Log.d(TAG, "NAME " + i + " " + legs[i].getModeName());
 
         }
@@ -216,13 +211,13 @@ public class SelectingRoute {
         int currentCount =0;
         int BusCount = 0;
         double totalPrice;
-        //This value is used to make sure it has at least one public transport is used(Needs to work on it)
+        //This value is used to make sure it has at least one public transport is used(Needs to createWaypoints on it)
         boolean bool = true;
         for(int i =0;i<journey.length;i++){
             Legs [] legs = journey[i].getLegs();
             for(int j =0;j<legs.length;j++){
                 if(legs[j].getModeName().equals("bus")){
-                BusCount +=1;
+                    BusCount +=1;
                     Log.d(TAG, "b  " +BusCount);
                     bool = true;
                 } else if(legs[j].getModeName().equals("tube") || legs[j].getModeName().equals("overground")){
@@ -234,21 +229,21 @@ public class SelectingRoute {
 
 
             }
-                //Working out the cheapest value
-                totalPrice = price+(BusCount*BUS_PRICE);
-                Log.d(TAG, " " +totalPrice);
-                if(totalPrice > dayLimit){
-                    totalPrice = dayLimit;
-                }
-                Log.d(TAG, "total " +totalPrice);
+            //Working out the cheapest value
+            totalPrice = price+(BusCount*BUS_PRICE);
+            Log.d(TAG, " " +totalPrice);
+            if(totalPrice > dayLimit){
+                totalPrice = dayLimit;
+            }
+            Log.d(TAG, "total " +totalPrice);
 
-                if(cheapest == 0 ){
-                    cheapest = totalPrice;
-                    currentCount =i ;
-                }else if(totalPrice< cheapest ){
-                    cheapest = totalPrice;
-                    currentCount =i ;
-                }
+            if(cheapest == 0 ){
+                cheapest = totalPrice;
+                currentCount =i ;
+            }else if(totalPrice< cheapest ){
+                cheapest = totalPrice;
+                currentCount =i ;
+            }
 
 
 
@@ -259,7 +254,7 @@ public class SelectingRoute {
 
 
         Log.d(TAG, "BusCount " + BusCount);
-     //   return journey[currentCount];
+        //   return journey[currentCount];
 
 
     }
@@ -273,7 +268,7 @@ public class SelectingRoute {
             for(int j = 0;j<legs.length;j++){
                 Log.d(TAG, "NAME " + j + " " + legs[j].getModeName());
                 if(legs[j].getModeName().equals("bus") || legs[j].getModeName().equals("tube") ||legs[j].getModeName().equals("overground")){
-                transitUsed ++;
+                    transitUsed ++;
                 }else{
                     Log.d(TAG, "NAME " + j + " " + legs[j].getModeName());
 

@@ -1,19 +1,24 @@
 package com.example.frank.busmap.Pojo.getJourneyFromTo;
 
+import org.parceler.Parcel;
+
 /**
  * Created by frank on 01/03/2018.
  */
-
+@Parcel
 public class TimeAdjustments {
-    private Earlier earlier;
+     Earlier earlier;
 
-    private Earliest earliest;
+     Earliest earliest;
 
-    private Later later;
+     Later later;
 
-    private String $type;
+     String $type;
 
-    private Latest latest;
+    public TimeAdjustments() {
+    }
+
+    Latest latest;
 
     public Earlier getEarlier ()
     {

@@ -3,13 +3,13 @@ package com.example.frank.busmap.Pojo.getJourneyFromTo;
 import org.parceler.Parcel;
 
 /**
- * Created by frank on 01/03/2018.
+ * Created by frank on 29/03/2018.
  */
 @Parcel
-public class PathAttribute {
-     String $type;
+public class Crowding {
+    String $type;
 
-    public PathAttribute() {
+    public Crowding() {
     }
 
     public String get$type ()

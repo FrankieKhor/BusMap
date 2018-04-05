@@ -1,4 +1,5 @@
-package com.example.frank.busmap;
+package com.example.frank.busmap.GoogleMap;
+
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -9,14 +10,13 @@ import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.text.TextUtils;
 import android.util.Log;
+
+import com.example.frank.busmap.R;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-/**
- * Created by frank on 09/03/2018.
- */
 
 public class FetchAddressIntentService extends IntentService {
     private static final String TAG = "FetchAddressIS";

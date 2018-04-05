@@ -3,34 +3,19 @@ package com.example.frank.busmap.Pojo.getJourneyFromTo;
 import org.parceler.Parcel;
 
 /**
- * Created by frank on 01/03/2018.
+ * Created by frank on 29/03/2018.
  */
 @Parcel
-public class StopPoints {
-     String id;
+public class ServiceTypes {
+    String $type;
+    String uri;
+    String name;
 
-     String name;
-
-     String $type;
-
-     String type;
-
-     String uri;
-
-    public StopPoints() {
-    }
-
-    public String getId ()
-    {
-        return id;
-    }
-
-    public void setId (String id)
-    {
-        this.id = id;
+    public ServiceTypes() {
     }
 
     public String getName ()
+
     {
         return name;
     }
@@ -50,16 +35,6 @@ public class StopPoints {
         this.$type = $type;
     }
 
-    public String getType ()
-    {
-        return type;
-    }
-
-    public void setType (String type)
-    {
-        this.type = type;
-    }
-
     public String getUri ()
     {
         return uri;
@@ -73,7 +48,6 @@ public class StopPoints {
     @Override
     public String toString()
     {
-        return "ClassPojo [id = "+id+", name = "+name+", $type = "+$type+", type = "+type+", uri = "+uri+"]";
+        return "ClassPojo [name = "+name+", $type = "+$type+", uri = "+uri+"]";
     }
-
 }

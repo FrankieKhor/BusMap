@@ -1,12 +1,14 @@
 package com.example.frank.busmap.Pojo.getAllBusStops;
 
+import org.parceler.Parcel;
+
 /**
  * Created by frank on 08/02/2018.
  */
 
 public class Crowding
 {
-    private String $type;
+     String $type;
 
     public String get$type ()
     {

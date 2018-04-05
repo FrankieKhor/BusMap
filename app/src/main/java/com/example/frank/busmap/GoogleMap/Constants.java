@@ -1,4 +1,4 @@
-package com.example.frank.busmap;
+package com.example.frank.busmap.GoogleMap;
 
 /**
  * Created by frank on 09/03/2018.
@@ -9,8 +9,7 @@ final class Constants {
 
     static final int FAILURE_RESULT = 1;
 
-    private static final String PACKAGE_NAME =
-            "com.google.android.gms.location.sample.locationaddress";
+    private static final String PACKAGE_NAME = "com.google.android.gms.location.sample.locationaddress";
 
     static final String RECEIVER = PACKAGE_NAME + ".RECEIVER";
 

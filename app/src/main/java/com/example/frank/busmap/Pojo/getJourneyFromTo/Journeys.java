@@ -1,20 +1,21 @@
 package com.example.frank.busmap.Pojo.getJourneyFromTo;
 
+import org.parceler.Parcel;
+
 /**
  * Created by frank on 01/03/2018.
  */
 
+@Parcel
 public class Journeys {
+    String duration;
+    String startDateTime;
+    String arrivalDateTime;
+    Legs[] legs;
+    String $type;
 
-    private String duration;
-
-    private String startDateTime;
-
-    private String arrivalDateTime;
-
-    private Legs[] legs;
-
-    private String $type;
+    public Journeys() {
+    }
 
     public String getDuration ()
     {

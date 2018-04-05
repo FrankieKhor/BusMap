@@ -1,17 +1,22 @@
 package com.example.frank.busmap.Pojo.getJourneyFromTo;
 
+import org.parceler.Parcel;
+
 /**
  * Created by frank on 02/03/2018.
  */
-
+@Parcel
 public class Obstacles {
-    private String stopId;
+     String stopId;
 
-    private String $type;
+     String $type;
 
-    private String type;
+     String type;
 
-    private String incline;
+     String incline;
+
+    public Obstacles() {
+    }
 
 
     public String getStopId ()

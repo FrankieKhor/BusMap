@@ -1,37 +1,44 @@
 package com.example.frank.busmap.Pojo.getJourneyFromTo;
 
+import org.parceler.Parcel;
+
 /**
  * Created by frank on 01/03/2018.
  */
-
+@Parcel
 public class Steps {
-    private String cumulativeTravelTime;
+     String cumulativeTravelTime;
 
-    private String streetName;
+     String streetName;
 
-    private String turnDirection;
+     String turnDirection;
 
-    private String skyDirectionDescription;
+     String skyDirectionDescription;
 
-    private String skyDirection;
+     String skyDirection;
 
-    private String distance;
+     String distance;
 
-    private String description;
+     String description;
 
-    private String descriptionHeading;
+     String descriptionHeading;
 
-    private PathAttribute pathAttribute;
+     PathAttribute pathAttribute;
 
-    private String trackType;
 
-    private String $type;
 
-    private String longitude;
+    String trackType;
 
-    private String latitude;
+     String $type;
 
-    private String cumulativeDistance;
+     String longitude;
+
+     String latitude;
+
+     String cumulativeDistance;
+
+    public Steps() {
+    }
 
     public String getCumulativeTravelTime ()
     {

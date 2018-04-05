@@ -1,19 +1,21 @@
 package com.example.frank.busmap.Pojo.getJourneyFromTo;
 
+import org.parceler.Parcel;
+
 /**
  * Created by frank on 01/03/2018.
  */
-
+@Parcel
 public class Latest {
-    private String time;
+    String time;
+    String timeIs;
+    String $type;
+    String date;
 
-    private String timeIs;
+    public Latest() {
+    }
 
-    private String $type;
-
-    private String date;
-
-    private String uri;
+     String uri;
 
     public String getTime ()
     {

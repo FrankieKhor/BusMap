@@ -3,18 +3,29 @@ package com.example.frank.busmap.Pojo.getJourneyFromTo;
 import org.parceler.Parcel;
 
 /**
- * Created by frank on 02/03/2018.
+ * Created by frank on 29/03/2018.
  */
 @Parcel
-public class Disruptions {
-     String category;
-     String description;
-     String categoryDescription;
-     String closureText;
-     String $type;
-     String[] affectedStops;
+public class Disruption {
+    String category;
+    String description;
+    String categoryDescription;
+    String closureText;
+    String $type;
+    String[] affectedStops;
+    String[] affectedRoutes;
 
-    public Disruptions() {
+    public Disruption() {
+    }
+
+    public String[] getAffectedRoutes ()
+    {
+        return affectedRoutes;
+    }
+
+    public void setAffectedRoutes (String[] affectedRoutes)
+    {
+        this.affectedRoutes = affectedRoutes;
     }
 
     public String getCategory ()
@@ -80,6 +91,6 @@ public class Disruptions {
     @Override
     public String toString()
     {
-        return "ClassPojo [category = "+category+", description = "+description+", categoryDescription = "+categoryDescription+", closureText = "+closureText+", $type = "+$type+", affectedStops = "+affectedStops+"]";
+        return "ClassPojo [affectedRoutes = "+affectedRoutes+", category = "+category+", description = "+description+", categoryDescription = "+categoryDescription+", closureText = "+closureText+", $type = "+$type+", affectedStops = "+affectedStops+"]";
     }
 }

@@ -1,61 +1,45 @@
 package com.example.frank.busmap.Pojo.getJourneyFromTo;
 
+
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import org.parceler.Parcel;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Created by frank on 01/03/2018.
  */
-
+@Parcel
 public class Path {
-    private ArrivalPoint arrivalPoint;
+    ArrivalPoint arrivalPoint;
+    String[] obstacles;
+    String[] disruptions;
+    String departureTime;
+    String isDisrupted;
+    Mode mode;
+    String distance;
+    String duration;
+    String arrivalTime;
+    RouteOptions[] routeOptions;
+    String hasFixedLocations;
+    Path path;
+    DeparturePoint departurePoint;
+    String $type;
+    Instruction instruction;
+    String[] plannedWorks;
+    String lineString;
 
-    private String[] obstacles;
-
-    private String[] disruptions;
-
-    private String departureTime;
-
-    private String isDisrupted;
-
-    private Mode mode;
-
-    private String distance;
-
-    private String duration;
-
-    private String arrivalTime;
-
-    private RouteOptions[] routeOptions;
-
-    private String hasFixedLocations;
-
-    private Path path;
-
-    private DeparturePoint departurePoint;
-
-    private String $type;
-
-    private Instruction instruction;
-
-    private String[] plannedWorks;
-    private String lineString;
-    private String[] arrayLineString;
-
-    public String getLineString (int num)
-    {
-        return arrayLineString[num];
+    public Path() {
     }
 
     public ArrayList<LatLng> getLineString ()
     {
         String improve = lineString.replaceAll("\\[|\\]", "");
-        arrayLineString = (improve.split(","));
+        String[] arrayLineString = (improve.split(","));
         ArrayList<LatLng> lob= new ArrayList<>();
 
         for(int i =1;i<arrayLineString.length;i+=2){

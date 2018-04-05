@@ -1,26 +1,23 @@
 package com.example.frank.busmap.Pojo.getJourneyFromTo;
 
-import com.example.frank.busmap.Pojo.getAllBusStops.Lines;
+import org.parceler.Parcel;
 
 /**
  * Created by frank on 01/03/2018.
  */
-
+@Parcel
 public class JourneyFromToResponse {
 
-    private Journeys[] journeys;
+    Journeys[] journeys;
+    SearchCriteria searchCriteria;
+    String recommendedMaxAgeMinutes;
+    String[] stopMessages;
+    Lines[] lines;
+    String $type;
+    JourneyVector journeyVector;
 
-    private SearchCriteria searchCriteria;
-
-    private String recommendedMaxAgeMinutes;
-
-    private String[] stopMessages;
-
-    private Lines[] lines;
-
-    private String $type;
-
-    private JourneyVector journeyVector;
+    public JourneyFromToResponse() {
+    }
 
     public Journeys[] getJourneys ()
     {

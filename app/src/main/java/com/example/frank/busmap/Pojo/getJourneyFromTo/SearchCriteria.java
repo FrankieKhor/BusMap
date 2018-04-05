@@ -1,18 +1,22 @@
 package com.example.frank.busmap.Pojo.getJourneyFromTo;
 
+import org.parceler.Parcel;
+
 /**
  * Created by frank on 01/03/2018.
  */
-
+@Parcel
 public class SearchCriteria {
-    private String dateTimeType;
+     String dateTimeType;
 
-    private String dateTime;
+     String dateTime;
 
-    private String $type;
+     String $type;
 
-    private TimeAdjustments timeAdjustments;
+     TimeAdjustments timeAdjustments;
 
+    public SearchCriteria() {
+    }
 
     public String getDateTimeType ()
     {

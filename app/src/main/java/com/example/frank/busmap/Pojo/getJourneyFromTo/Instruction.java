@@ -1,17 +1,19 @@
 package com.example.frank.busmap.Pojo.getJourneyFromTo;
 
+import org.parceler.Parcel;
+
 /**
  * Created by frank on 01/03/2018.
  */
-
+@Parcel
 public class Instruction {
-    private String summary;
+    String summary;
+    String detailed;
+    String $type;
+    Steps[] steps;
 
-    private String detailed;
-
-    private String $type;
-
-    private Steps[] steps;
+    public Instruction() {
+    }
 
     public String getSummary ()
     {

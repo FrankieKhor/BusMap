@@ -1,42 +1,33 @@
 package com.example.frank.busmap.Pojo.getJourneyFromTo;
 
+import org.parceler.Parcel;
+
 /**
  * Created by frank on 01/03/2018.
  */
+//Will look into using native serialization just to understand it but using parcelable  because of performance
 
+@Parcel
 public class Legs {
+    ArrivalPoint arrivalPoint;
+    Obstacles[] obstacles;
+    Disruptions[] disruptions;
+    String departureTime;
+    String isDisrupted;
+    Mode mode;
+    String distance;
+    String duration;
+    String arrivalTime;
+    RouteOptions[] routeOptions;
+    String hasFixedLocations;
+    Path path;
+    DeparturePoint departurePoint;
+    String $type;
+    Instruction instruction;
+    String[] plannedWorks;
 
-    private ArrivalPoint arrivalPoint;
-
-    private Obstacles[] obstacles;
-
-    private Disruptions[] disruptions;
-
-    private String departureTime;
-
-    private String isDisrupted;
-
-    private Mode mode;
-
-    private String distance;
-
-    private String duration;
-
-    private String arrivalTime;
-
-    private RouteOptions[] routeOptions;
-
-    private String hasFixedLocations;
-
-    private Path path;
-
-    private DeparturePoint departurePoint;
-
-    private String $type;
-
-    private Instruction instruction;
-
-    private String[] plannedWorks;
+    public Legs() {
+    }
 
     public ArrivalPoint getArrivalPoint ()
     {
@@ -152,7 +143,7 @@ public class Legs {
         this.hasFixedLocations = hasFixedLocations;
     }
 
-    public Path getPath ()
+    public Path getPathsOption()
     {
         return path;
     }

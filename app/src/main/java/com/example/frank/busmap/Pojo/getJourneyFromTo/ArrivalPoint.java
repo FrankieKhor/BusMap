@@ -1,19 +1,20 @@
 package com.example.frank.busmap.Pojo.getJourneyFromTo;
 
+import org.parceler.Parcel;
+
 /**
  * Created by frank on 01/03/2018.
  */
-
+@Parcel
 public class ArrivalPoint {
-    private String commonName;
+    String commonName;
+    String lon;
+    String $type;
+    String placeType;
+    String lat;
 
-    private String lon;
-
-    private String $type;
-
-    private String placeType;
-
-    private String lat;
+    public ArrivalPoint() {
+    }
 
     public String getCommonName ()
     {

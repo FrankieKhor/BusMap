@@ -1,37 +1,67 @@
 package com.example.frank.busmap.GenticAlgorithm;
 
-/**
- * Created by frank on 18/03/2018.
- */
+import com.google.android.gms.maps.model.LatLng;
 
-public class Stops {
+import java.util.ArrayList;
+
+//Represent each
+public class Stops
+{
     private double time, cost;
     private int vehicleChange;
-    String path;
-    public Stops(String path, double time, double cost, int change){
-        this.path = path;
+    private String paths;
+    private ArrayList<LatLng> arrayList ;
+    String [] mode;
+
+    public Stops(String path, double time, double cost, int change, ArrayList<LatLng> LatList) {
+        this.paths = path;
         this.time = time;
         this.cost = cost;
         this.vehicleChange = change;
+        this.arrayList = new ArrayList<>(LatList);
     }
 
-    public double getTime(){
+    public Stops(double time, double cost, int change, ArrayList<LatLng> LatList ){
+        this.time = time;
+        this.cost = cost;
+        this.vehicleChange = change;
+        this.arrayList = new ArrayList<>(LatList);
+    }
+
+    public double getTime()
+    {
         return this.time;
     }
-    public String getPath(){
-        return this.path;
+
+    public ArrayList<LatLng> getLatLng()
+    {
+        return this.arrayList;
     }
 
+    public int getLatLngSize()
+    {
+        return this.arrayList.size();
+    }
 
-    public double getCost(){
+    public String getPaths()
+    {
+        return this.paths;
+    }
+
+    public double getCost()
+    {
         return this.cost;
     }
 
-    public int getVehicleChange(){
+    public int getVehicleChange()
+    {
         return this.vehicleChange;
     }
 
-    public String toString(){
-        return " time " + this.time + " cost " + this.cost + " vehicle change " + this.vehicleChange;
+    @Override
+    public String toString()
+    {
+        return " paths "+ this.paths +" time " + this.time + " cost " + this.cost + " vehicle change " + this.vehicleChange
+                + " arraySize " + this.arrayList.size() ;
     }
 }

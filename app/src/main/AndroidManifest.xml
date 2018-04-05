@@ -30,12 +30,15 @@
             </intent-filter>
         </activity>
         <activity android:name=".GoogleMap.StreetViewPanorama" />
-        <service
-            android:name=".FetchAddressIntentService"
-            android:exported="false"/>
-        <service android:name=".Pojo.Rest.BackgroundService"
-            android:exported="false"/>
 
+        <service
+            android:name=".GoogleMap.FetchAddressIntentService"
+            android:exported="false" />
+        <service
+            android:name=".Pojo.Rest.BackgroundService"
+            android:exported="false" />
+
+        <activity android:name=".Chart"></activity>
     </application>
 
 </manifest>

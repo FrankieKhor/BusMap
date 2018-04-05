@@ -16,7 +16,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginEnd="108dp"
         android:layout_marginStart="108dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="50dp"
         android:background="@color/colorPrimaryLight"
         android:completionThreshold="1"
         android:hint="Enter Bus Number..."
@@ -71,7 +71,7 @@
         android:id="@+id/busDirection"
         android:layout_width="wrap_content"
         android:layout_height="35dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="50dp"
         android:rotation="90"
         android:src="@drawable/switch_direction_24dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -95,10 +95,22 @@
         android:layout_width="30dp"
         android:layout_height="35dp"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="50dp"
         android:src="@drawable/search_24dp"
         app:layout_constraintEnd_toStartOf="@+id/busNumber"
         app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="108dp"
+        android:layout_marginStart="108dp"
+        android:layout_marginTop="16dp"
+        android:text="Get Bus Line Information"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

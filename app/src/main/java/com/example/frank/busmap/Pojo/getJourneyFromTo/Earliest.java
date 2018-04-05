@@ -1,19 +1,20 @@
 package com.example.frank.busmap.Pojo.getJourneyFromTo;
 
+import org.parceler.Parcel;
+
 /**
  * Created by frank on 01/03/2018.
  */
-
+@Parcel
 public class Earliest {
-    private String time;
+    String time;
+    String timeIs;
+    String $type;
+    String date;
+    String uri;
 
-    private String timeIs;
-
-    private String $type;
-
-    private String date;
-
-    private String uri;
+    public Earliest() {
+    }
 
     public String getTime ()
     {

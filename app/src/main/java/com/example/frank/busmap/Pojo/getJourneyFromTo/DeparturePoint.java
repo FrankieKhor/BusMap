@@ -1,25 +1,44 @@
 package com.example.frank.busmap.Pojo.getJourneyFromTo;
 
+import org.parceler.Parcel;
+
 /**
  * Created by frank on 01/03/2018.
  */
-
+@Parcel
 public class DeparturePoint {
-    private String commonName;
+    String commonName;
+    String lon;
+    String platformName;
+    String[] additionalProperties;
+    String icsCode;
+    String $type;
+    String placeType;
+    String lat;
+    String stopLetter;
+    String naptanId;
 
-    private String lon;
 
-    private String platformName;
+    public String getNaptanId() {
+        return naptanId;
+    }
 
-    private String[] additionalProperties;
+    public void setNaptanId(String naptanId) {
+        this.naptanId = naptanId;
+    }
 
-    private String icsCode;
 
-    private String $type;
 
-    private String placeType;
+    public String getStopLetter() {
+        return stopLetter;
+    }
 
-    private String lat;
+    public void setStopLetter(String stopLetter) {
+        this.stopLetter = stopLetter;
+    }
+
+    public DeparturePoint() {
+    }
 
     public String getCommonName ()
     {

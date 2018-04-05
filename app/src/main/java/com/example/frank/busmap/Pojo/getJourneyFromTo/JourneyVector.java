@@ -1,20 +1,19 @@
 package com.example.frank.busmap.Pojo.getJourneyFromTo;
 
+import org.parceler.Parcel;
+
 /**
  * Created by frank on 01/03/2018.
  */
-
+@Parcel
 public class JourneyVector {
-
-    private String to;
-
-    private String via;
-
-    private String $type;
-
-    private String from;
-
-    private String uri;
+    String to;
+    String via;
+    String $type;
+    String from;
+    String uri;
+    public JourneyVector() {
+    }
 
     public String getTo ()
     {
